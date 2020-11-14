@@ -8,28 +8,19 @@ extern int yylineno;
 int yyerror(char *,...);
 %}
 %%
-\+			{fprintf(yyout, "+\n");return '+';} 
-\*			{fprintf(yyout, "*\n");return '*';}
-\(			{fprintf(yyout, "(\n");return '(';}
-\)			{fprintf(yyout, ")\n");return ')';}
-\/			{fprintf(yyout, "/\n");return '/';}
-\-			{fprintf(yyout, "-\n");return '-';}
-\^			{fprintf(yyout, "^\n");return '^';}
-\=			{
-				fprintf(yyout, "^\n");
-				return '=';
-			}
-[1-9][0-9]*		{
-				fprintf(yyout, "liczba\n");
-				yylval.ival = atoi(yytext);
-				return LC;
-			}	
-[A-Za-z_][A-Za-z0-9_]*	{
-				fprintf(yyout, "nazwa\n");
-				yylval.text = strdup(yytext);
-				return ID;
-			}
-[1-9]+[.]{2}		{fprintf(yyout, "dziwne\n");}
+\+			{return '+';} 
+\*			{return '*';}
+\(			{return '(';}
+\)			{return ')';}
+\/			{return '/';}
+\-			{return '-';}
+\^			{return '^';}
+\=			{return '=';}
+\:\=        {return ASSIGN;}
+\<\=        {return LEQUAL;}    
+0|[1-9][0-9]*		    { yylval.ival = atoi(yytext);   return LC;}	
+[1-9][0-9]*\.[0-9]*     { yylval.fval = atof(yytext);   return LF;}
+[A-Za-z_][A-Za-z0-9_]*	{ yylval.text = strdup(yytext); return ID;}
 \ |\t			{;}
 \n			{yylineno++;}
 .			{yyerror("Blad leksykalny\n");}

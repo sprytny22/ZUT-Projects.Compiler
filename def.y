@@ -3,35 +3,44 @@
 #include <stdio.h>
 #define INFILE_ERROR 1
 #define OUTFILE_ERROR 2
+FILE *rpn, *threes;
 %}
 %union 
-{char *text;
-int	ival;};
-%type <text> wyr
+{
+    char *text;
+    int	ival;
+    float fval;
+};
+%token EQ NEQ GEQ 
+%token LEQUAL ASSIGN
 %token <text> ID
 %token <ival> LC
-%left '+' '-'
-%left '*' '/'
-%start wyr
+%token <fval> LF
 %%
 wyr
-	:wyr '+' skladnik	{printf("wyrazenie z + \n");}
-	|wyr '-' skladnik	{printf("wyrazenie z - \n");}
-	|skladnik		{printf("wyrazenie pojedyncze \n");}
+	:wyr '+' skladnik	{fprintf(rpn," + ");}
+	|wyr '-' skladnik	{fprintf(rpn," - ");}
+	|skladnik		{fprintf(rpn," skladnik ");}
 	;
 skladnik
-	:skladnik '*' czynnik	{printf("skladnik z * \n");}
-	|skladnik '/' czynnik	{printf("skladnik z / \n");}
-	|czynnik		{printf("skladnik pojedynczy \n");}
+	:skladnik '*' czynnik	{fprintf(rpn," * ");}
+	|skladnik '/' czynnik	{fprintf(rpn," / ");}
+	|czynnik		{fprintf(rpn," czynnik ");}
 	;
 czynnik
-	:ID			{printf("czynnik znakowy\n");} 
-	|LC			{printf("czynnik liczbowy\n");}
-	|'(' wyr ')'		{printf("wyrazenie w nawiasach\n");}
+	:ID			{fprintf(rpn,"%s ", $1);} 
+	|LC			{fprintf(rpn,"%d ", $1);}
+	|'(' wyr ')'		{fprintf(rpn,"wyrazenie w nawiasach");}
 	;
 %%
 int main(int argc, char *argv[])
 {
+    rpn = fopen("rpn.txt", "wt");
+    threes = fopen("threes.txt", "wt");
+
 	yyparse();
+
+    fclose(rpn);
+    fclose(threes);
 	return 0;
 }

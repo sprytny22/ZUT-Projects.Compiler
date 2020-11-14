@@ -1,0 +1,9 @@
+def.tab.c
+def.tab.h
+def.tab.o
+leks
+lex.yy.c
+lex.yy.o
+rpn.txt
+threes.txt
+input.txt

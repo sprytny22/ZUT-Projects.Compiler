@@ -1,11 +1,11 @@
 %{
 #include <stdlib.h>
 #include <string.h>
-#include "def.tab.h"
+#include "def.tab.hh"
 #define INFILE_ERROR 1
 #define OUTFILE_ERROR 2
 extern int yylineno;
-int yyerror(char *,...);
+int yyerror(const char *msg,...);
 %}
 %%
 \+			{return '+';} 
@@ -25,7 +25,7 @@ int yyerror(char *,...);
 \n			{yylineno++;}
 .			{yyerror("Blad leksykalny\n");}
 %%
-int yyerror(char *msg,...)
+int yyerror(const char *msg,...)
 {
 	printf("%d: %s", yylineno, msg);
 	exit(1);

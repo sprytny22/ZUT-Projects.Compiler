@@ -1,21 +1,22 @@
 %{
 #include <string>
-#include <stdio.h>
+#include <string.h>
 #include <stack>
-#include <iostream>
+
+using namespace std;
 
 #define INFILE_ERROR 1
 #define OUTFILE_ERROR 2
 
-std::stack<int> *stos;
-
 FILE *rpn, *threes;
+
+std::stack<int> stos;
 
 int yylex();
 int yyerror(const char *msg, ...);
 
 char* stackBump();
-char* makeThree(std::string, std::string);
+char* makeThree(std::string, int);
 
 %}
 %union 
@@ -61,7 +62,7 @@ czynnik
 		fprintf(rpn,"%s ", $1);
 	} 
 	|LC	{
-		stos->push($1);
+		stos.push($1);
 		fprintf(rpn,"%d ", $1);
 	}
 	|'(' wyr ')'		{fprintf(rpn,"wyrazenie w nawiasach");}
@@ -71,34 +72,31 @@ int main(int argc, char *argv[])
 {
     rpn = fopen("rpn.txt", "wt");
     threes = fopen("threes.txt", "wt");
-	stos = new std::stack();
 
 	yyparse();
 
-	if (!stos->empty()) { 
-		std::cout << "Stack is not empty!" << std::endl;
+	if (!stos.empty()) { 
 		return 1;
 	}
 
     fclose(rpn);
     fclose(threes);
-	delete stos;
 	return 0;
 }
 
 char* stackBump() {
-	int result = stos->top;
-	int arg1 = stos->pop;
+	int result = stos.top();
+	stos.pop();
+	int arg1 = stos.top();
+	stos.pop();
 
-	int newResult = "result";
+	stos.push(result);
 
-	stos->push(newResult);
-
-	return makeThree(result, arg1);
+	return makeThree(std::to_string(result), arg1);
 }
 
-char* makeThree(int result, int arg1) {
-	std::string s = ("result = " + arg1 + "result");
+char* makeThree(std::string result, int arg1) {
+	std::string s = "result = " + std::to_string(arg1) + " " + result + "\n";
 
 	int n = s.length();
 

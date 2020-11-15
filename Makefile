@@ -6,7 +6,7 @@ LD=gcc
 all:	leks
 
 leks:	def.tab.o lex.yy.o
-	$(LD) lex.yy.o def.tab.o -o leks -ll
+	$(LD) lex.yy.o def.tab.o -o leks -ll -lstdc++ 
 
 lex.yy.o:	lex.yy.c
 	$(CPP) -std=c++11 -c lex.yy.c

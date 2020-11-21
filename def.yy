@@ -10,13 +10,13 @@ using namespace std;
 
 FILE *rpn, *threes;
 
-std::stack<int> stos;
+std::stack<std::string> stos;
 
 int yylex();
 int yyerror(const char *msg, ...);
 
 char* stackBump();
-char* makeThree(std::string, int);
+char* makeThree(std::string, std::string);
 
 %}
 %union 
@@ -30,7 +30,12 @@ char* makeThree(std::string, int);
 %token <text> ID
 %token <ival> LC
 %token <fval> LF
+%start wyr
 %%
+prog 
+	:wyr ';' prog
+	|wyr ';'
+	;
 wyr
 	:wyr '+' skladnik	{
 		fprintf(threes, stackBump());
@@ -39,6 +44,10 @@ wyr
 	|wyr '-' skladnik	{
 		fprintf(threes, stackBump());
 		fprintf(rpn," - ");
+	}
+	|wyr '=' skladnik	{
+		fprintf(threes, stackBump());
+		fprintf(rpn," = ");
 	}
 	|skladnik		{
 		fprintf(rpn," skladnik ");
@@ -52,6 +61,7 @@ skladnik
 	|skladnik '/' czynnik	{
 		fprintf(threes, stackBump());
 		fprintf(rpn," / ");
+		
 	}
 	|czynnik		{
 		fprintf(rpn," czynnik ");
@@ -59,10 +69,11 @@ skladnik
 	;
 czynnik
 	:ID	{
+		stos.push($1);
 		fprintf(rpn,"%s ", $1);
 	} 
 	|LC	{
-		stos.push($1);
+		stos.push(std::to_string($1));
 		fprintf(rpn,"%d ", $1);
 	}
 	|'(' wyr ')'		{fprintf(rpn,"wyrazenie w nawiasach");}
@@ -85,18 +96,19 @@ int main(int argc, char *argv[])
 }
 
 char* stackBump() {
-	int result = stos.top();
+	std::string result = stos.top();
 	stos.pop();
-	int arg1 = stos.top();
+	std::string arg1 = stos.top();
 	stos.pop();
 
-	stos.push(result);
 
-	return makeThree(std::to_string(result), arg1);
+	stos.push("result");
+
+	return makeThree(result, arg1);
 }
 
-char* makeThree(std::string result, int arg1) {
-	std::string s = "result = " + std::to_string(arg1) + " " + result + "\n";
+char* makeThree(std::string result, std::string arg1) {
+	std::string s = "result = " + arg1 + " " + result + "\n";
 
 	int n = s.length();
 

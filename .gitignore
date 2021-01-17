@@ -1,8 +1,8 @@
-def.tab.c
-def.tab.h
+def.tab.cc
+def.tab.hh
 def.tab.o
 leks
-lex.yy.c
+lex.yy.cc
 lex.yy.o
 rpn.txt
 threes.txt

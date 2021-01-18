@@ -1,28 +1,98 @@
 %{
-    #include <iostream>
-    #include <stdbool.h>
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <string>
-    #include <vector>
-    #include <stack>
-    extern "C" int yylex();
-    extern "C" int yyerror(const char *msg, ...);
+  #include <iostream>
+  #include <stdbool.h>
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <string>
+  #include <vector>
+  #include <stack>
+  #include <map>
+
+  extern "C" int yylex();
+  extern "C" int yyerror(const char *msg, ...);
 
 	#define INFILE_ERROR 1
 	#define OUTFILE_ERROR 2
 
-    extern FILE *yyin;
-    extern FILE *yyout;
+  extern FILE *yyin;
+  extern FILE *yyout;
+
+  enum Type {
+    Text,
+    Integer,
+    Double,
+  };
+
+  class Variable {
+    Type type;
+    String value;
+    public:
+      Variable(Type type, String value) {
+        this->type = type;
+        this->value = value;
+      }
+  }
+
+  class Compiler {
+
+    std::string id = "result";
+
+    std::stack<Variable> *Stack;
+
+    std::map<std::string, Variable> Symbols;
+    std::vector<std::string> AssemblyCode;  
+
+    void generate_three() {
+      
+    }
+
+    Variable * calculateStackTop(std::string operator) {
+      switch(operator) {
+        case '+':
+          break;
+        case '-':
+          break;
+        case '*':
+          break;
+        case '/':
+          break;
+      }
+    }
+
+    public:
+
+    void stack_push(Variable *variable) {
+      Stack->push(variable);
+    }
+
+    void throw_stack(std::string operator) {
+
+      static int variableCounter;
+      
+      Variable top = Stack->top();
+      Stack->pop();
+      Variable top2 = Stack->top();
+      Stack->pop();
+
+      Variable *templaryVariable = this->calculateStackTop(operator);
+      variableCounter++;
+      std::string vid = this->id + std::to_string(variableCounter);
+      this->Symbols->insert( std::pair<vid, templaryVariable> );
+
+      Stack->push(templaryVariable)
+      this->generate_three();
+    }
+  }
 
 %}
 
 %union 
 {
-	char *textValue;
-	int	integerValue;
-    double decimalValue;
+  char *textValue;
+  int	integerValue;
+  double decimalValue;
 };
+
 
 %token INT DOUBLE STRING BOOLEAN;
 %token IF ELSE WHILE RETURN;
@@ -38,22 +108,23 @@
 
 lines:
        line
-     | lines line   { printf("Syntax: wiele linii\n"); }
+     | lines line   { }
      ;
 
 line:
-       	declaration { printf("Syntax: linia deklaracji\n");}
-     | 	assignment  { printf("Syntax: linia przypisania\n");}
+       	declaration { }
+     | 	assignment  { }
      ;
      
 assignment:
-		typeName elementCmp '=' elementCmp ';' { printf("Syntax: przypisanie proste.\n");  }
-	|	typeName elementCmp '=' expression ';' { printf("Syntax: przypisanie zlozone.\n");  }
+		typeName elementCmp '=' elementCmp ';' { compiler->throw_stack(); }
+	|	typeName elementCmp '=' expression ';' { compiler->throw_stack(); }
 	;
 
 declaration:
-     	typeName elementCmp ';' { printf("Syntax: deklaracja\n"); }
+     	typeName elementCmp ';' { }
      ;
+
 
 typeName:
        INT     {  printf("Syntax: typ int\n"); }
@@ -63,21 +134,21 @@ typeName:
       ;
 
 expression:
-	  components '+' expression {  printf("Syntax: dodawanie\n"); }
-	| components '-' expression {  printf("Syntax: odejmowanie\n"); }
+	  components '+' expression {  compiler->throw_stack(); }
+	| components '-' expression {  compiler->throw_stack(); }
 	| components
 	;
 
 components:
-	  components '*' elementCmp {  printf("Syntax: mnozenie\n"); }
-	| components '/' elementCmp {  printf("Syntax: dzielenie\n"); }
-	| elementCmp                 {  printf("(konkretnaWartosc)\n"); }
+	  components '*' elementCmp {  compiler->throw_stack(); }
+	| components '/' elementCmp {  compiler->throw_stack(); }
+	| elementCmp 
 	;
 
 elementCmp:
-	   VALUE_INTEGER			{  printf("Syntax: wartosc calkowita\n"); }
-	 | VALUE_DECIMAL			{  printf("Syntax: wartosc zmiennoprzecinkowa\n"); }
-     | TEXT                     {  printf("Syntax: text-zmn\n"); }
+	   VALUE_INTEGER			{  compiler->stack_push(new Variable(Type::Integer, std::to_string($1))); }
+	   | VALUE_DECIMAL		{  compiler->stack_push(new Variable(Type::Double, std::to_string($1))); }
+     | TEXT             {  compiler->stack_push(new Variable(Type::Text, std::to_string($1))); }
 	;
 
 %%
@@ -85,6 +156,11 @@ elementCmp:
 
 int main(int argc, char *argv[])
 {
+
+  Compiler *compiler = new Compiler();
+
 	yyparse();
+
+  delete compiler;
 	return 0;
 }

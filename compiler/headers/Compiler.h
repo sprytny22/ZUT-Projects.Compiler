@@ -1,12 +1,13 @@
 #include <stack>
 #include <map>
-#include "Variable.h"
+#include "Assembly.h"
 
 class Compiler { 
     
     private:
-         std::stack<Variable*> *_stack;
-         std::map<std::string, Variable*> *_symbols;
+        std::stack<Variable*> *_stack;
+        std::map<std::string, Variable*> *_symbols;
+        Assembly *_assembly;
 
     public:
         Compiler();

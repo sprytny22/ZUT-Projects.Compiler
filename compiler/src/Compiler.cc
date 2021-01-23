@@ -6,6 +6,7 @@
 Compiler::Compiler() {
     _stack = new std::stack<Variable*>();
     _symbols = new std::map<std::string, Variable*>();
+    _assembly = new Assembly();
 }
 
 void Compiler::pushOnStack(Variable* variable) {
@@ -39,7 +40,6 @@ void Compiler::createThree(std::string op) {
     }
     else if (left->getLexType() == LexType::Text) {
         std::string errorMessage = "Undefined symbol found.";   //TODO: error mesaages
-        //yyerror(errorMessage.c_str());
     }
 
     if (right->getLexType() == LexType::Text && _symbols->find(right->getValue()) != _symbols->end()) {
@@ -47,13 +47,15 @@ void Compiler::createThree(std::string op) {
     }
     else if (right->getLexType() == LexType::Text) {
         std::string errorMessage = "Undefined symbol found.";
-        //yyerror(errorMessage.c_str());
     }
 
     if (leftType != rightType) {
         std::string errorMessage = "Type mismatch!";
-        //yyerror(errorMessage.c_str());
     }
+
+    _assembly->assignment(leftType, left->getValue(), "$t0");
+    _assembly->assignment(rightType, right->getValue(), "$t1");
+    
 
     //std::cout << std::string(result->getValue()) + std::string(" = ") + std::string(tmp->getValue()) + std::string(" ") + std::string(tmp2->getValue()) + std::string(" ") + std::string(op) << std::endl;
 }

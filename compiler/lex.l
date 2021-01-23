@@ -38,9 +38,7 @@ boolean					{ return BOOLEAN; }
 \}						{ return '}';     }
 \"						{ return '"';     }
 \]						{ return ']';     }
-
 \/\/					{ return COMMENT;}
-
 \=\=					{ return EQ;}
 \>\=					{ return GEQ;}
 \<\=					{ return LEQ;}
@@ -60,7 +58,7 @@ boolean					{ return BOOLEAN; }
 						}		
 [ \t]					{;}
 [\r][\n]					{  yylineno++; }
-.						{ yyerror("LEX::Lexical error....\n");}
+.						{ return yytext[0];}
 %%
 
 void sendOutput(char *value)

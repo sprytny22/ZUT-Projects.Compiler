@@ -1,3 +1,4 @@
+#include <iostream>
 #include "../headers/Debug.h"
 
 int Debug::info() {

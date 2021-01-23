@@ -1,7 +1,5 @@
 %{
-
   #include <iostream>
-  #include "headers/Debug.h"
   #include "headers/Compiler.h"
 
   extern "C" int yylex();
@@ -13,6 +11,8 @@
   extern FILE *yyin;
   extern FILE *yyout;
 
+  Compiler *compiler = new Compiler();
+
 %}
 
 %union 
@@ -22,13 +22,21 @@
   double decimalValue;
 };
 
+%start lines;
+%right '='
+%left '+' '-'
+%left '*'
+
 %token INT DOUBLE STRING BOOLEAN;
-%token IF
-%token EQ NEQ GEQ LEQ;
+%token IF ELSE WHILE RETURN;
+%token READ PRINT;
+%token TRUE FALSE COMMENT;
+%token EQ NEQ GEQ LEQ LARGER SMALLER;
 
 %token<textValue> TEXT;
 %token<integerValue> VALUE_INTEGER;
 %token<decimalValue> VALUE_DECIMAL;
+
 
 %%
 
@@ -105,16 +113,16 @@ assignment:
 
 declaration:
     INT TEXT ';' { 
-      printf("Syntax-Recognized: deklaracja inta\n"); /** sama deklaracja w goodii nie generuje assemblera **/
+      printf("Syntax-Recognized: deklaracja inta\n");
     }
   | DOUBLE TEXT ';' { 
-      printf("Syntax-Recognized: deklaracja double\n"); /** sama deklaracja w goodii nie generuje assemblera**/
+      printf("Syntax-Recognized: deklaracja double\n");
     }
   | STRING TEXT ';' { 
-      printf("Syntax-Recognized: deklaracja stringa\n"); /** sama deklaracja w goodii nie generuje assemblera **/
+      printf("Syntax-Recognized: deklaracja stringa\n");
     }
   | BOOLEAN TEXT ';' { 
-      printf("Syntax-Recognized: deklaracja boola \n"); /** sama deklaracja w goodii nie generuje assemblera **/ 
+      printf("Syntax-Recognized: deklaracja boola \n");
     }
 ;
 
@@ -163,7 +171,8 @@ elementCmp:
       printf("Syntax-Recognized: wartosc zmiennoprzecinkowa\n");  
   }
   | TEXT {  
-      printf("Syntax-Recognized: text-zmn\n");                   
+      printf("Syntax-Recognized: text-zmn\n"); 
+      compiler->pushOnStack(new Variable(LexType::Text, std::string("test")));               
   }
 ;
 

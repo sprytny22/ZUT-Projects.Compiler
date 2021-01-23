@@ -920,32 +920,32 @@ YY_RULE_SETUP
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 42 "lex.l"
+#line 41 "lex.l"
 { return COMMENT;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 44 "lex.l"
+#line 42 "lex.l"
 { return EQ;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 45 "lex.l"
+#line 43 "lex.l"
 { return GEQ;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 46 "lex.l"
+#line 44 "lex.l"
 { return LEQ;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 47 "lex.l"
+#line 45 "lex.l"
 { return NEQ;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 49 "lex.l"
+#line 47 "lex.l"
 { 
 							yylval.textValue = strdup(yytext);
 							return TEXT;
@@ -953,7 +953,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 53 "lex.l"
+#line 51 "lex.l"
 {
 							yylval.integerValue = atoi(yytext);
 							return VALUE_INTEGER;
@@ -961,7 +961,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 57 "lex.l"
+#line 55 "lex.l"
 {
 							yylval.decimalValue = atof(yytext);
 							return VALUE_DECIMAL;
@@ -969,23 +969,23 @@ YY_RULE_SETUP
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 61 "lex.l"
+#line 59 "lex.l"
 {;}
 	YY_BREAK
 case 36:
 /* rule 36 can match eol */
 YY_RULE_SETUP
-#line 62 "lex.l"
+#line 60 "lex.l"
 {  yylineno++; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 63 "lex.l"
-{ yyerror("LEX::Lexical error....\n");}
+#line 61 "lex.l"
+{ return yytext[0];}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 64 "lex.l"
+#line 62 "lex.l"
 ECHO;
 	YY_BREAK
 #line 992 "lex.yy.c"
@@ -1993,7 +1993,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 64 "lex.l"
+#line 62 "lex.l"
 
 
 void sendOutput(char *value)

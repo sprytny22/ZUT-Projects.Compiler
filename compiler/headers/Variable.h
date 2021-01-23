@@ -1,9 +1,23 @@
 #include <string>
+#include <vector>
+
+enum LexType {
+    None,
+    Int,
+    Double,
+    Text
+};
 
 class Variable { 
-    int _type;
+    LexType _type;
     std::string _value;
 
     public:   
-      Variable(int, std::string);
+
+      Variable(LexType, std::string);
+      std::string getValue();
+      LexType getLexType();
+
+      static std::vector<std::string> unavailableNames;
+      static std::string generateUniqueName();
 }; 

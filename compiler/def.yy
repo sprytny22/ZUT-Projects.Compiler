@@ -1,5 +1,6 @@
 %{
   #include <iostream>
+  #include <string> 
   #include "headers/Compiler.h"
 
   extern "C" int yylex();
@@ -10,6 +11,14 @@
 
   extern FILE *yyin;
   extern FILE *yyout;
+
+  namespace Operators {
+    std::string Sub = "-";
+    std::string Add = "+";
+    std::string Mul = "*";
+    std::string Div = "/";
+  }
+  
 
   Compiler *compiler = new Compiler();
 
@@ -143,20 +152,24 @@ typeName:
 
 expression:
     components '+' expression {  
-      printf("Syntax-Recognized: dodawanie\n");  
+      printf("Syntax-Recognized: dodawanie\n");
+      compiler->createThree(Operators::Add);
     }
 	| components '-' expression { 
-      printf("Syntax-Recognized: odejmowanie\n");  
+      printf("Syntax-Recognized: odejmowanie\n");
+      compiler->createThree(Operators::Sub);  
     }
 	| components
 ;
 
 components:
 	  components '*' elementCmp {  
-      printf("Syntax-Recognized: mnozenie\n");  
+      printf("Syntax-Recognized: mnozenie\n"); 
+      compiler->createThree(Operators::Mul);  
     }
 	| components '/' elementCmp { 
       printf("Syntax-Recognized: dzielenie\n"); 
+      compiler->createThree(Operators::Div); 
     }
 	| elementCmp { 
        printf("(skladnik)\n"); 
@@ -165,14 +178,16 @@ components:
 
 elementCmp:
 	  VALUE_INTEGER	{  
-      printf("Syntax-Recognized: wartosc calkowita\n");           
+      printf("Syntax-Recognized: wartosc calkowita\n");
+      compiler->pushOnStack(new Variable(LexType::Int, std::to_string($1))); 
     }
 	| VALUE_DECIMAL	{  
-      printf("Syntax-Recognized: wartosc zmiennoprzecinkowa\n");  
+      printf("Syntax-Recognized: wartosc zmiennoprzecinkowa\n");
+      compiler->pushOnStack(new Variable(LexType::Double, std::to_string($1)));   
   }
   | TEXT {  
-      printf("Syntax-Recognized: text-zmn\n"); 
-      compiler->pushOnStack(new Variable(LexType::Text, std::string("test")));               
+      printf("Syntax-Recognized: text-zmn\n");
+      compiler->pushOnStack(new Variable(LexType::Text, std::string($1)));               
   }
 ;
 
@@ -180,7 +195,12 @@ elementCmp:
 
 int main(int argc, char *argv[])
 {
+
+  Compiler* compiler = new Compiler();
+
 	yyparse();
+
+  delete compiler;
 
 	return 0;
 }

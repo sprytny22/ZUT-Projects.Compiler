@@ -1,12 +1,8 @@
 %{
+
   #include <iostream>
-  #include <stdbool.h>
-  #include <stdio.h>
-  #include <stdlib.h>
-  #include <string>
-  #include <vector>
-  #include <stack>
-  #include <map>
+  #include "headers/Debug.h"
+  #include "headers/Compiler.h"
 
   extern "C" int yylex();
   extern "C" int yyerror(const char *msg, ...);
@@ -17,73 +13,6 @@
   extern FILE *yyin;
   extern FILE *yyout;
 
-  enum Type {
-    Text,
-    Integer,
-    Double,
-  };
-
-  class Variable {
-    Type type;
-    String value;
-    public:
-      Variable(Type type, String value) {
-        this->type = type;
-        this->value = value;
-      }
-  }
-
-  class Compiler {
-
-    std::string id = "result";
-
-    std::stack<Variable> *Stack;
-
-    std::map<std::string, Variable> Symbols;
-    std::vector<std::string> AssemblyCode;  
-
-    void generate_three() {
-      
-    }
-
-    Variable * calculateStackTop(std::string operator) {
-      switch(operator) {
-        case '+':
-          break;
-        case '-':
-          break;
-        case '*':
-          break;
-        case '/':
-          break;
-      }
-    }
-
-    public:
-
-    void stack_push(Variable *variable) {
-      Stack->push(variable);
-    }
-
-    void throw_stack(std::string operator) {
-
-      static int variableCounter;
-      
-      Variable top = Stack->top();
-      Stack->pop();
-      Variable top2 = Stack->top();
-      Stack->pop();
-
-      Variable *templaryVariable = this->calculateStackTop(operator);
-      variableCounter++;
-      std::string vid = this->id + std::to_string(variableCounter);
-      this->Symbols->insert( std::pair<vid, templaryVariable> );
-
-      Stack->push(templaryVariable)
-      this->generate_three();
-    }
-  }
-
 %}
 
 %union 
@@ -93,11 +22,8 @@
   double decimalValue;
 };
 
-
 %token INT DOUBLE STRING BOOLEAN;
-%token IF ELSE WHILE RETURN;
-%token READ PRINT;
-%token TRUE FALSE COMMENT;
+%token IF
 %token EQ NEQ GEQ LEQ;
 
 %token<textValue> TEXT;
@@ -107,60 +33,145 @@
 %%
 
 lines:
-       line
-     | lines line   { }
-     ;
+    line
+  | lines line { 
+      printf("Syntax-Recognized: wiele linii\n"); 
+    }
+;
 
 line:
-       	declaration { }
-     | 	assignment  { }
-     ;
-     
+    declaration { 
+      printf("Syntax-Recognized: linia deklaracji\n");
+    }
+  | assignment { 
+      printf("Syntax-Recognized: linia przypisania\n");
+    }
+  | if_expression ';'
+;
+
+expressionInBrackets:
+  '(' expression ')' {
+    printf("Syntax-Recognized: wyrazenie w nawiasie \n");
+  }
+;
+
+if_start:
+  IF '(' expression compOperator expression ')'  {
+    printf("Syntax-Recognized: poczatek instrukcji warunkowej \n");  
+  }
+;
+
+if_expression:
+    if_start '{' lines '}' {
+      printf("Syntax-Recognized: wnetrze instrukcji warunkowej \n"); 
+    }
+  | if_start '{'  '}' { 
+      printf("Syntax-Recognized: pustrze wnetrze instrukcji warunkowej \n");  
+    }
+;
+
+compOperator: 
+    EQ {
+      printf("Syntax-Recognized: operator rowna sie \n");  
+    }
+	| NEQ {
+      printf("Syntax-Recognized: operator rozna sie \n"); 
+    }
+	| GEQ { 
+      printf("Syntax-Recognized: operator wiekszy rowny \n"); 
+    }
+	| LEQ {
+      printf("Syntax-Recognized: operator mniejszy rowny \n"); 
+    }
+;
+
 assignment:
-		typeName elementCmp '=' elementCmp ';' { compiler->throw_stack(); }
-	|	typeName elementCmp '=' expression ';' { compiler->throw_stack(); }
-	;
+    typeName elementCmp '=' elementCmp ';' { 
+      printf("Syntax-Recognized: przypisanie proste.\n");  
+    }
+  | typeName elementCmp '=' expression ';' { 
+      printf("Syntax-Recognized: przypisanie zlozone.\n");  
+    }
+  | TEXT '=' expression ';'     { 
+      printf("Syntax-Recognized: przypisanie identyfikatora \n");  
+    }
+  | INT TEXT '=' expression ';' { 
+      printf("Syntax-Recognized: przypisanie identyfikatora dla inta \n");  
+    }
+  | DOUBLE TEXT '=' expression ';' { 
+      printf(" Syntax-Recognized: przypisanie identyfikatora dla double \n");   
+    }
+;
 
 declaration:
-     	typeName elementCmp ';' { }
-     ;
-
+    INT TEXT ';' { 
+      printf("Syntax-Recognized: deklaracja inta\n"); /** sama deklaracja w goodii nie generuje assemblera **/
+    }
+  | DOUBLE TEXT ';' { 
+      printf("Syntax-Recognized: deklaracja double\n"); /** sama deklaracja w goodii nie generuje assemblera**/
+    }
+  | STRING TEXT ';' { 
+      printf("Syntax-Recognized: deklaracja stringa\n"); /** sama deklaracja w goodii nie generuje assemblera **/
+    }
+  | BOOLEAN TEXT ';' { 
+      printf("Syntax-Recognized: deklaracja boola \n"); /** sama deklaracja w goodii nie generuje assemblera **/ 
+    }
+;
 
 typeName:
-       INT     {  printf("Syntax: typ int\n"); }
-     | DOUBLE  {  printf("Syntax: typ double\n"); }
-     | STRING  {  printf("Syntax: typ string\n"); }
-     | BOOLEAN {  printf("Syntax: typ bool\n"); }
-      ;
+    INT {  
+      printf("Syntax-Recognized: typ int\n"); 
+    }
+  | DOUBLE {  
+      printf("Syntax-Recognized: typ double\n"); 
+    }
+  | STRING { 
+      printf("Syntax-Recognized: typ string\n"); 
+    }
+  | BOOLEAN {  
+      printf("Syntax-Recognized: typ bool\n"); 
+    }
+;
 
 expression:
-	  components '+' expression {  compiler->throw_stack(); }
-	| components '-' expression {  compiler->throw_stack(); }
+    components '+' expression {  
+      printf("Syntax-Recognized: dodawanie\n");  
+    }
+	| components '-' expression { 
+      printf("Syntax-Recognized: odejmowanie\n");  
+    }
 	| components
-	;
+;
 
 components:
-	  components '*' elementCmp {  compiler->throw_stack(); }
-	| components '/' elementCmp {  compiler->throw_stack(); }
-	| elementCmp 
-	;
+	  components '*' elementCmp {  
+      printf("Syntax-Recognized: mnozenie\n");  
+    }
+	| components '/' elementCmp { 
+      printf("Syntax-Recognized: dzielenie\n"); 
+    }
+	| elementCmp { 
+       printf("(skladnik)\n"); 
+    }
+;
 
 elementCmp:
-	   VALUE_INTEGER			{  compiler->stack_push(new Variable(Type::Integer, std::to_string($1))); }
-	   | VALUE_DECIMAL		{  compiler->stack_push(new Variable(Type::Double, std::to_string($1))); }
-     | TEXT             {  compiler->stack_push(new Variable(Type::Text, std::to_string($1))); }
-	;
+	  VALUE_INTEGER	{  
+      printf("Syntax-Recognized: wartosc calkowita\n");           
+    }
+	| VALUE_DECIMAL	{  
+      printf("Syntax-Recognized: wartosc zmiennoprzecinkowa\n");  
+  }
+  | TEXT {  
+      printf("Syntax-Recognized: text-zmn\n");                   
+  }
+;
 
 %%
 
-
 int main(int argc, char *argv[])
 {
-
-  Compiler *compiler = new Compiler();
-
 	yyparse();
 
-  delete compiler;
 	return 0;
 }

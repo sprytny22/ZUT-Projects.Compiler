@@ -8,3 +8,5 @@ rpn.txt
 threes.txt
 input.txt
 golonka
+compiler/*.o
+lex.yy.c

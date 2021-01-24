@@ -13,10 +13,10 @@
   extern FILE *yyout;
 
   namespace Operators {
-    std::string Sub = "-";
-    std::string Add = "+";
-    std::string Mul = "*";
-    std::string Div = "/";
+    std::string Sub = "sub";
+    std::string Add = "add";
+    std::string Mul = "mul";
+    std::string Div = "div";
   }
   
 
@@ -111,12 +111,15 @@ assignment:
     }
   | TEXT '=' expression ';'     { 
       printf("Syntax-Recognized: przypisanie identyfikatora \n");  
+      compiler->textAssign(std::string($1));
     }
   | INT TEXT '=' expression ';' { 
-      printf("Syntax-Recognized: przypisanie identyfikatora dla inta \n");  
+      printf("Syntax-Recognized: przypisanie identyfikatora dla inta \n");
+      compiler->intAssign(std::string($1));
     }
   | DOUBLE TEXT '=' expression ';' { 
-      printf(" Syntax-Recognized: przypisanie identyfikatora dla double \n");   
+      printf(" Syntax-Recognized: przypisanie identyfikatora dla double \n");
+      compiler->doubleAssign(std::string($1));  
     }
 ;
 
@@ -172,21 +175,21 @@ components:
       compiler->createThree(Operators::Div); 
     }
 	| elementCmp { 
-       printf("(skladnik)\n"); 
+      printf("(skladnik)\n"); 
     }
 ;
 
 elementCmp:
 	  VALUE_INTEGER	{  
-      printf("Syntax-Recognized: wartosc calkowita\n");
+      //printf("Syntax-Recognized: wartosc calkowita\n");
       compiler->pushOnStack(new Variable(LexType::Int, std::to_string($1))); 
     }
 	| VALUE_DECIMAL	{  
-      printf("Syntax-Recognized: wartosc zmiennoprzecinkowa\n");
+      //printf("Syntax-Recognized: wartosc zmiennoprzecinkowa\n");
       compiler->pushOnStack(new Variable(LexType::Double, std::to_string($1)));   
   }
   | TEXT {  
-      printf("Syntax-Recognized: text-zmn\n");
+      //printf("Syntax-Recognized: text-zmn\n");
       compiler->pushOnStack(new Variable(LexType::Text, std::string($1)));               
   }
 ;

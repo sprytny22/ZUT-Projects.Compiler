@@ -2,6 +2,7 @@
   #include <iostream>
   #include <string> 
   #include "headers/Compiler.h"
+  #include "headers/Debug.h"
 
   extern "C" int yylex();
   extern "C" int yyerror(const char *msg, ...);
@@ -111,15 +112,15 @@ assignment:
     }
   | TEXT '=' expression ';'     { 
       printf("Syntax-Recognized: przypisanie identyfikatora \n");  
-      compiler->textAssign(std::string($1));
+      compiler->simpleAssigment($1);
     }
   | INT TEXT '=' expression ';' { 
       printf("Syntax-Recognized: przypisanie identyfikatora dla inta \n");
-      compiler->intAssign(std::string($1));
+      //compiler->pushOnVariableNameStack(std::string($2));
     }
   | DOUBLE TEXT '=' expression ';' { 
       printf(" Syntax-Recognized: przypisanie identyfikatora dla double \n");
-      compiler->doubleAssign(std::string($1));  
+      //compiler->pushOnVariableNameStack(std::string($2));  
     }
 ;
 
@@ -168,11 +169,11 @@ expression:
 components:
 	  components '*' elementCmp {  
       printf("Syntax-Recognized: mnozenie\n"); 
-      compiler->createThree(Operators::Mul);  
+      //compiler->createThree(Operators::Mul);  
     }
 	| components '/' elementCmp { 
       printf("Syntax-Recognized: dzielenie\n"); 
-      compiler->createThree(Operators::Div); 
+      //compiler->createThree(Operators::Div); 
     }
 	| elementCmp { 
       printf("(skladnik)\n"); 
@@ -181,7 +182,7 @@ components:
 
 elementCmp:
 	  VALUE_INTEGER	{  
-      //printf("Syntax-Recognized: wartosc calkowita\n");
+      printf("Syntax-Recognized: wartosc calkowita\n");
       compiler->pushOnStack(new Variable(LexType::Int, std::to_string($1))); 
     }
 	| VALUE_DECIMAL	{  
@@ -207,3 +208,24 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+
+ 
+/*
+Definicja int, Definicja double,
+Przypisanie int, Przypisanie int
+
+Dodawania artytmietyczne,
+Odejmowanie arytemtyczne,
+Mnożenie arytemtyczne,
+dzielenie arytemtyczne,
+          
+if     
+
+wyswietlanie int, wyswietlanie double
+ 
+
+ 
+  
+     
+
+*/

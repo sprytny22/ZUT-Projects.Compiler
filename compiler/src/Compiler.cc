@@ -11,8 +11,6 @@ Compiler::Compiler() {
 
 void Compiler::pushOnStack(Variable* variable) {
     _stack->push(variable);
-
-    //Debug::info("Pushed Stack!");
 }
 
 void Compiler::createThree(std::string op) {
@@ -68,6 +66,17 @@ void Compiler::createSymbol(std::string name, Variable * variable) {
     _symbols->insert(std::make_pair(name, variable));
 }
 
+void Compiler::simpleAssigment(std::string variableName) {
+    Variable* top = topAndPop();
+
+    Debug::info("ok!");
+
+    createSymbol(variableName, top);
+
+    _assembly->createAssigment(variableName, top);
+
+}
+
 LexType Compiler::findSymbolType(std::string value) {
 
     LexType type = LexType::Text;
@@ -87,4 +96,6 @@ Variable* Compiler::topAndPop(){
     return top;
 }
 
-
+void Compiler::createOutput() {
+    _assembly->generateOutputFile();
+}

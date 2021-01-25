@@ -1,58 +1,56 @@
 #include <sstream>
+#include <string>
+#include <cstdio>
 #include "../headers/Assembly.h"
+#include "../headers/Debug.h"
 
-Assembly::Assembly() {}
+Assembly::Assembly() {
+    _assemblyHeaderLines = new std::vector<std::string>();
+    _assemblyBodyLines = new std::vector<std::string>();
 
-void Assembly::assignmentHeader(LexType type, std::string value, std::string reg, std::string op) {
-
+    _assemblyHeaderLines->push_back(".data\n");
+    _assemblyBodyLines->push_back(".text\n");
 }
 
-void Assembly::assignmentBody(LexType type, std::string value, std::string reg, std::string op) {
-    auto line1 = createLine("li ", reg, ", ", value);
-    auto line2 = createLine("lw ", reg, ", ", value);
-    auto line3 = createLine("add ",reg, ", ", value);
-    auto line4 = createLine("sw ", reg, ", ", value);
+void Assembly::createAssigment(std::string variableName, Variable* variable) {
 
-    _assemblyBodyLines.push_back(line1);
-    _assemblyBodyLines.push_back(line2);
-    _assemblyBodyLines.push_back(line3);
-    _assemblyBodyLines.push_back(line4);
+    std::stringstream ss;
+
+    ss << variableName << ":" << " " << ".word " << "0" << "\n";
+    
+    pushHeader(ss.str());
+
+    ss.str("");
+
+    ss << "li" << " $t0 " << ", " << variable->getValue() << "\n";
+    ss << "sw" << " $t0 " << ", " << variableName << "\n";
+
+    pushBody(ss.str());
+
+    generateOutputFile();
 }
 
-std::string Assembly::createLine(std::string command, std::string value, std::string reg, std::string op)
-{
-   std::stringstream ss;
-   ss << command << reg << ", " << value << "\n";
-
-   return ss.str();
+void Assembly::pushHeader(std::string lines) {
+    _assemblyHeaderLines->push_back(lines);
 }
 
-void Assembly::textAssign(std::string variableName, std::string value, std::string reg = "$t0") {
-
-    //li $t0, 10
-    //sw $t0, a
-    _assemblyBodyLines.push_back(createLine("li", reg, ",", value));
-    _assemblyBodyLines.push_back(createLine("sw", reg, ",", variableName));
-    _assemblyBodyLines.push_back(emptyLine);
-
+void Assembly::pushBody(std::string lines) {
+    _assemblyBodyLines->push_back(lines);
 }
 
-void Assembly::intAssign(std::string variableName, std::string value, std::string reg = "$t0") {
+void Assembly::generateOutputFile() {
 
-    //li $t0, 10
-    //sw $t0, a
-    _assemblyBodyLines.push_back(createLine("li", reg, ",", value));
-    _assemblyBodyLines.push_back(createLine("sw", reg, ",", variableName));
-    _assemblyBodyLines.push_back(emptyLine);
+    FILE * asmFile;
+    remove("output.asm");
 
-}
+    asmFile = fopen ("output.asm","a");
 
-void Assembly::doubleAssign(std::string variableName, std::string value, std::string reg = "$t0") {
+    for ( auto i = _assemblyHeaderLines->begin(); i != _assemblyHeaderLines->end(); i++ ) {
+        fprintf(asmFile, i->c_str());
+    }
+    for ( auto i = _assemblyBodyLines->begin(); i != _assemblyBodyLines->end(); i++ ) {
+        fprintf(asmFile, i->c_str());
+    }
 
-    //li $t0, 10
-    //sw $t0, a
-    _assemblyBodyLines.push_back(createLine("li", reg, ",", value));
-    _assemblyBodyLines.push_back(createLine("sw", reg, ",", variableName));
-    _assemblyBodyLines.push_back(emptyLine);
-
+    fclose (asmFile);
 }

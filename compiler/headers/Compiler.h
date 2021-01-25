@@ -11,14 +11,13 @@ class Compiler {
 
     public:
         Compiler();
-        void pushOnStack(Variable*);   
+        void pushOnStack(Variable*);  
         void createThree(std::string);
         void createSymbol(std::string, Variable*);
         LexType findSymbolType(std::string);
         Variable* topAndPop();
 
-        void textAssign(std::string);
-        void intAssign(std::string);
-        void doubleAssign(std::string);
+        void createOutput();
+        void simpleAssigment(std::string);
 
 }; 

@@ -12,11 +12,20 @@ Assembly::Assembly() {
     _assemblyBodyLines->push_back(".text\n");
 }
 
+void Assembly::pushHeader(std::string lines) {
+    _assemblyHeaderLines->push_back(lines);
+}
+
+void Assembly::pushBody(std::string lines) {
+    _assemblyBodyLines->push_back(lines);
+}
+
 void Assembly::createAssigment(std::string variableName, Variable* variable) {
 
     std::stringstream ss;
+    std::string type = variable->getLexType() == LexType::Double ? ".float " : ".word ";
 
-    ss << variableName << ":" << " " << ".word " << "0" << "\n";
+    ss << variableName << ":" << " " << type << "0" << "\n";
     
     pushHeader(ss.str());
 
@@ -26,16 +35,7 @@ void Assembly::createAssigment(std::string variableName, Variable* variable) {
     ss << "sw" << " $t0 " << ", " << variableName << "\n";
 
     pushBody(ss.str());
-
     generateOutputFile();
-}
-
-void Assembly::pushHeader(std::string lines) {
-    _assemblyHeaderLines->push_back(lines);
-}
-
-void Assembly::pushBody(std::string lines) {
-    _assemblyBodyLines->push_back(lines);
 }
 
 void Assembly::generateOutputFile() {

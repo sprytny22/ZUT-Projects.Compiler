@@ -15,9 +15,12 @@ class Compiler {
         void createThree(std::string);
         void createSymbol(std::string, Variable*);
         LexType findSymbolType(std::string);
+        Variable* findSymbol(std::string); 
         Variable* topAndPop();
 
-        void createOutput();
-        void simpleAssigment(std::string);
+        bool correctSymbol(Variable*);
+        void simpleAssigmentInt(std::string);
+        void simpleAssigmentDouble(std::string);
+        void simpleAssigmentText(std::string);
 
 }; 

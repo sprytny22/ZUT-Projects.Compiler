@@ -16,6 +16,8 @@ class Variable {
 
       Variable(LexType, std::string);
       std::string getValue();
+      
+      void setLexType(LexType);
       LexType getLexType();
 
       static std::vector<std::string> unavailableNames;

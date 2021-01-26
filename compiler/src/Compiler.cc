@@ -13,80 +13,170 @@ void Compiler::pushOnStack(Variable* variable) {
     _stack->push(variable);
 }
 
+/*
+result= c 9 ∗
+result= b result +
+result= a result =
+*/
+
 void Compiler::createThree(std::string op) {
 
     if (_stack->size() < 1) {
         return;
     }
 
-    Variable* left = topAndPop();
     Variable* right = topAndPop();
+    Variable* left = topAndPop();
 
-    std::string unique = Variable::generateUniqueName();
-    Variable* result = new Variable(LexType::Text, unique);
-
-    pushOnStack(result);
-    createSymbol(unique, result);
-
-    
-    LexType leftType = left->getLexType();
     LexType rightType = right->getLexType();
+    LexType leftType = left->getLexType();
 
+    if (rightType == LexType::Text) {
+        auto symbol = findSymbol(right->getValue());
+        if (symbol == nullptr) {
+            Debug::info("Symbol not exists right! (createThree)");
+            return;
+        }
+        else {
+            right->setLexType(symbol->getLexType());
+        }
+    }
 
     if (leftType == LexType::Text) {
-        leftType = findSymbolType(left->getValue());
+        auto symbol = findSymbol(left->getValue());
+        if (symbol == nullptr) {
+            Debug::info("Symbol not exists left! (createThree)");
+            return;
+        }
+        else {
+            left->setLexType(symbol->getLexType());
+        }
     }
 
-    if (leftType == LexType::Text) { 
-        leftType = findSymbolType(right->getValue());
-    }
+    LexType commonType = LexType::Int;//etCommonType(left, right); // will return double or int
 
-    if (leftType == LexType::None || rightType == LexType::None || rightType != leftType) {
-        Debug::info("Type != type");
+
+    std::string unique = Variable::generateUniqueName();
+    Variable* result = new Variable(commonType, unique);
+
+    pushOnStack(result);
+
+    _assembly->createAssigment(right->getValue(), right);
+    _assembly->createAssigment(left->getValue(), left);
+
+    /*Create assembly what:
+        - define result variable, mean:
+            .data
+            result: .word 0 
+        - define right i left
+        - make operand value and assign to result 
+            li $t0, 3
+            sw $t0, x
+            lw $t0, x
+            li $t1, 2
+            mul $t0, $t0, $t1
+            sw $t0, unique
+
+    */
+
+
+    createSymbol(unique, result);
+}
+
+void Compiler::createSymbol(std::string name, Variable* variable) {
+    if (findSymbol(name) != nullptr) {
+        Debug::info("Variable is already defined!");
         return;
     }
 
-    Debug::lexToString("left: " ,leftType);
-    Debug::lexToString("right: " ,rightType);
-
-    LexType currentType = leftType;
-
-    //Debug::info(_assembly->lines("jeden")); 
-
-    // _assembly->assignmentBody(currentType, left->getValue(), "$t0", op);
-    // _assembly->assignmentBody(currentType, right->getValue(), "$t1", op);
-
-    // _assembly->generateAssemblyOutput();
-    
-
-    //std::cout << std::string(result->getValue()) + std::string(" = ") + std::string(tmp->getValue()) + std::string(" ") + std::string(tmp2->getValue()) + std::string(" ") + std::string(op) << std::endl;
-}
-
-void Compiler::createSymbol(std::string name, Variable * variable) {
     _symbols->insert(std::make_pair(name, variable));
 }
 
-void Compiler::simpleAssigment(std::string variableName) {
+void Compiler::simpleAssigmentInt(std::string variableName) {
     Variable* top = topAndPop();
+    LexType type = top->getLexType();
 
-    Debug::info("ok!");
+    if (type == LexType::Double) {
+        Debug::info("Cant assigne double to int!");
+    }
+
+    if (type == LexType::Text) {
+        top->setLexType(LexType::Int);
+
+        if (!correctSymbol(top)) {
+            Debug::info("symbol not exists! (simpleAssigmentInt)");
+            return;
+        }
+    }
 
     createSymbol(variableName, top);
-
     _assembly->createAssigment(variableName, top);
-
 }
 
-LexType Compiler::findSymbolType(std::string value) {
+void Compiler::simpleAssigmentDouble(std::string variableName) {
+    Variable* top = topAndPop();
+    LexType type = top->getLexType();
 
-    LexType type = LexType::Text;
+    if (type == LexType::Int) {
+        top->setLexType(LexType::Double); //convert int to double
+    }
+
+    if (type == LexType::Text) {
+        top->setLexType(LexType::Double);
+
+        if (!correctSymbol(top)) {
+            Debug::info("symbol not exists! (simpleAssigmentDouble)");
+            return;
+        }
+    }
+
+    createSymbol(variableName, top);
+    _assembly->createAssigment(variableName, top);
+}
+
+void Compiler::simpleAssigmentText(std::string variableName) {
+    Variable* top = topAndPop();
+
+    if (!correctSymbol(top)) {
+        Debug::info("symbol not declarated!");
+        return;
+    }
+
+    _assembly->createAssigment(variableName, top);
+}
+
+bool Compiler::correctSymbol(Variable* variable) {
+    LexType type;
+    std::string value = variable->getValue();
+    Variable* symbol = nullptr;
+
+    if ((symbol = findSymbol(value)) == nullptr) {
+        Debug::info("symbol not exists!");
+        return false;
+    }
+
+    type = symbol->getLexType();// TODO: type int -> double, double -> int is CORRECT!
+    if (type != variable->getLexType()) {
+        Debug::info("symbol not match!");
+        return false;
+    }
+
+    return true;
+} 
+
+Variable* Compiler::findSymbol(std::string value) {
+    Variable* type = nullptr;
     auto found = _symbols->find(value);
     
     if (found != _symbols->end()) {
-        type = found->second->getLexType();
+        type = found->second;
     }
 
     return type;
+}
+
+LexType Compiler::findSymbolType(std::string value) {
+    return findSymbol(value)->getLexType();
 }
 
 Variable* Compiler::topAndPop(){
@@ -94,8 +184,4 @@ Variable* Compiler::topAndPop(){
     _stack->pop();
 
     return top;
-}
-
-void Compiler::createOutput() {
-    _assembly->generateOutputFile();
 }

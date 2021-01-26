@@ -110,17 +110,17 @@ assignment:
   | typeName elementCmp '=' expression ';' { 
       printf("Syntax-Recognized: przypisanie zlozone.\n");  
     }
-  | TEXT '=' expression ';'     { 
+  | TEXT '=' expression ';' { 
       printf("Syntax-Recognized: przypisanie identyfikatora \n");  
-      compiler->simpleAssigment($1);
+      compiler->simpleAssigmentText($1);
     }
   | INT TEXT '=' expression ';' { 
       printf("Syntax-Recognized: przypisanie identyfikatora dla inta \n");
-      //compiler->pushOnVariableNameStack(std::string($2));
+      compiler->simpleAssigmentInt($2);
     }
   | DOUBLE TEXT '=' expression ';' { 
       printf(" Syntax-Recognized: przypisanie identyfikatora dla double \n");
-      //compiler->pushOnVariableNameStack(std::string($2));  
+      compiler->simpleAssigmentDouble($2);
     }
 ;
 
@@ -208,24 +208,12 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
-
+  
  
 /*
-Definicja int, Definicja double,
-Przypisanie int, Przypisanie int
-
-Dodawania artytmietyczne,
-Odejmowanie arytemtyczne,
-Mnożenie arytemtyczne,
-dzielenie arytemtyczne,
-          
-if     
-
-wyswietlanie int, wyswietlanie double
- 
-
- 
-  
-     
-
+TODO:
+  - Obsluga bledow!
+  - Zwolnienie pamięci!
+  - Testy!
+  - Formatowanie kodu!
 */

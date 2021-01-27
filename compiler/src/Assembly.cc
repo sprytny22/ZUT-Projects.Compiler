@@ -12,29 +12,57 @@ Assembly::Assembly() {
     _assemblyBodyLines->push_back(".text\n");
 }
 
-void Assembly::pushHeader(std::string lines) {
+void Assembly::pushData(std::string lines) {
     _assemblyHeaderLines->push_back(lines);
 }
 
-void Assembly::pushBody(std::string lines) {
+void Assembly::pushText(std::string lines) {
     _assemblyBodyLines->push_back(lines);
+}
+
+void Assembly::lw(std::string reg, std::string value) {
+    std::stringstream ss;
+
+    ss << "lw " << reg << ", " << value << "\n";
+    pushText(ss.str());
+}
+
+void Assembly::sw(std::string reg, std::string value) {
+    std::stringstream ss;
+
+    ss << "sw " << reg << ", " << value << "\n";
+    pushText(ss.str());
+}
+
+void Assembly::li(std::string reg, std::string value) {
+    std::stringstream ss;
+
+    ss << "li " << reg << ", " << value << "\n";
+    pushText(ss.str());
+}
+
+void Assembly::action(std::string op, std::string assignReg, std::string reg0, std::string reg1) {
+    std::stringstream ss;
+
+    ss << op << " " << assignReg << ", " << reg0 << " " << reg1 << "\n";
+    pushText(ss.str());
+}
+
+void Assembly::data(std::string variableName, LexType lextype, std::string value = "0") {
+    std::stringstream ss;
+
+    std::string type = lextype == LexType::Double ? ".float" : ".word";
+
+    ss << variableName << ":" << " " << type << " " << value << "\n";
+    pushText(ss.str());
 }
 
 void Assembly::createAssigment(std::string variableName, Variable* variable) {
 
-    std::stringstream ss;
-    std::string type = variable->getLexType() == LexType::Double ? ".float " : ".word ";
+    data(variableName, variable->getLexType());
+    li("$t0", variable->getValue());
+    sw("$t0", variableName);
 
-    ss << variableName << ":" << " " << type << "0" << "\n";
-    
-    pushHeader(ss.str());
-
-    ss.str("");
-
-    ss << "li" << " $t0 " << ", " << variable->getValue() << "\n";
-    ss << "sw" << " $t0 " << ", " << variableName << "\n";
-
-    pushBody(ss.str());
     generateOutputFile();
 }
 

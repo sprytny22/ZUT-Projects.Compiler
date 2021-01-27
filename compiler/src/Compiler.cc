@@ -40,47 +40,30 @@ void Compiler::createThree(std::string op) {
         else {
             right->setLexType(symbol->getLexType());
         }
-    }
 
-    if (leftType == LexType::Text) {
+    if (isTextValue(rightValue)) {
         auto symbol = findSymbol(left->getValue());
         if (symbol == nullptr) {
             Debug::info("Symbol not exists left! (createThree)");
             return;
         }
-        else {
-            left->setLexType(symbol->getLexType());
-        }
+
+        _assembly->lw("$t1", left->getValue());
+    }
+    else {
+        _assembly->li("$t1", left->getValue());
     }
 
-    LexType commonType = LexType::Int;//etCommonType(left, right); // will return double or int
 
 
     std::string unique = Variable::generateUniqueName();
-    Variable* result = new Variable(commonType, unique);
+    Variable* result = new Variable(LexType::Text, unique);
 
-    pushOnStack(result);
-
-    _assembly->createAssigment(right->getValue(), right);
-    _assembly->createAssigment(left->getValue(), left);
-
-    /*Create assembly what:
-        - define result variable, mean:
-            .data
-            result: .word 0 
-        - define right i left
-        - make operand value and assign to result 
-            li $t0, 3
-            sw $t0, x
-            lw $t0, x
-            li $t1, 2
-            mul $t0, $t0, $t1
-            sw $t0, unique
-
-    */
-
+    _assembly->action(op, "$t0", "$t0", "$t1");
+    _assembly->sw("$t0", result->getValue());
 
     createSymbol(unique, result);
+    _assembly->data(result->getValue(),);
 }
 
 void Compiler::createSymbol(std::string name, Variable* variable) {

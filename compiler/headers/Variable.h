@@ -2,10 +2,8 @@
 #include <vector>
 
 enum LexType {
-    None,
     Int,
-    Double,
-    Text
+    Double
 };
 
 class Variable { 
@@ -16,7 +14,7 @@ class Variable {
 
       Variable(LexType, std::string);
       std::string getValue();
-      
+
       void setLexType(LexType);
       LexType getLexType();
 

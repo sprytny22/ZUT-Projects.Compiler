@@ -10,9 +10,16 @@ class Assembly {
 
     public:
         Assembly();
+
+        void lw(std::string, std::string);
+        void sw(std::string, std::string);
+        void li(std::string, std::string);
+
+        void data(std::string, LexType, std::string);
+        void action(std::string, std::string, std::string, std::string);
         
         void generateOutputFile();
         void createAssigment(std::string, Variable*);
-        void pushHeader(std::string);
-        void pushBody(std::string);
+        void pushData(std::string);
+        void pushText(std::string);
 }; 

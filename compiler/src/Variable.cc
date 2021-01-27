@@ -22,9 +22,11 @@ std::vector<std::string> Variable::unavailableNames;
 
 std::string Variable::generateUniqueName() {
     int unique = 0;
+    std::string defaultVariableName = "result";
+    
     while(std::find(unavailableNames.begin(), unavailableNames.end(), std::to_string(++unique)) != unavailableNames.end()) 
     {}
 
     unavailableNames.push_back(std::to_string(unique));
-    return std::to_string(unique);
+    return std::string(defaultVariableName) + std::to_string(unique);
 }

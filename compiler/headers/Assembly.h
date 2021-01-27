@@ -15,11 +15,11 @@ class Assembly {
         void sw(std::string, std::string);
         void li(std::string, std::string);
 
-        void data(std::string, LexType, std::string);
+        void data(std::string, LexType, std::string = "0");
         void action(std::string, std::string, std::string, std::string);
         
         void generateOutputFile();
-        void createAssigment(std::string, Variable*);
+
         void pushData(std::string);
         void pushText(std::string);
 }; 

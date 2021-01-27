@@ -169,11 +169,11 @@ expression:
 components:
 	  components '*' elementCmp {  
       printf("Syntax-Recognized: mnozenie\n"); 
-      //compiler->createThree(Operators::Mul);  
+      compiler->createThree(Operators::Mul);  
     }
 	| components '/' elementCmp { 
       printf("Syntax-Recognized: dzielenie\n"); 
-      //compiler->createThree(Operators::Div); 
+      compiler->createThree(Operators::Div); 
     }
 	| elementCmp { 
       printf("(skladnik)\n"); 
@@ -191,7 +191,7 @@ elementCmp:
   }
   | TEXT {  
       //printf("Syntax-Recognized: text-zmn\n");
-      compiler->pushOnStack(new Variable(LexType::Text, std::string($1)));               
+      compiler->pushOnStack(new Variable(LexType::Int, std::string($1)));               
   }
 ;
 
@@ -210,10 +210,11 @@ int main(int argc, char *argv[])
 }
   
  
+             
 /*
 TODO:
   - Obsluga bledow!
   - Zwolnienie pamięci!
-  - Testy!
+  - Testy! 
   - Formatowanie kodu!
-*/
+*/     

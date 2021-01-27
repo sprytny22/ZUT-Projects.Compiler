@@ -1,14 +1,19 @@
 .data
 x: .word 0
-4: .word 0
-x: .word 0
+result1: .word 0
+result2: .word 0
 z: .word 0
+
 .text
-li $t0 , 3
-sw $t0 , x
-li $t0 , 4
-sw $t0 , 4
-li $t0 , x
-sw $t0 , x
-li $t0 , 1
-sw $t0 , z
+li $t0, 3
+sw $t0, x
+li $t0, 2
+lw $t1, x
+mul $t0, $t0, $t1
+sw $t0, result1
+lw $t0, result1
+li $t1, 5
+add $t0, $t0, $t1
+sw $t0, result2
+lw $t0, result2
+sw $t0, z

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <string>
 #include "../headers/Compiler.h"
 #include "../headers/Debug.h"
@@ -13,35 +14,34 @@ void Compiler::pushOnStack(Variable* variable) {
     _stack->push(variable);
 }
 
-/*
-result= c 9 ∗
-result= b result +
-result= a result =
-*/
-
 void Compiler::createThree(std::string op) {
 
     if (_stack->size() < 1) {
         return;
     }
 
+    LexType resultType = LexType::Int;
+
     Variable* right = topAndPop();
     Variable* left = topAndPop();
 
-    LexType rightType = right->getLexType();
-    LexType leftType = left->getLexType();
+    std::string rightValue = right->getValue();
+    std::string leftValue = left->getValue();
 
-    if (rightType == LexType::Text) {
+    if (isTextValue(rightValue)) {
         auto symbol = findSymbol(right->getValue());
         if (symbol == nullptr) {
             Debug::info("Symbol not exists right! (createThree)");
             return;
         }
-        else {
-            right->setLexType(symbol->getLexType());
-        }
 
-    if (isTextValue(rightValue)) {
+        _assembly->lw("$t0", right->getValue());
+    }
+    else {
+        _assembly->li("$t0", right->getValue());
+    }
+
+    if (isTextValue(leftValue)) {
         auto symbol = findSymbol(left->getValue());
         if (symbol == nullptr) {
             Debug::info("Symbol not exists left! (createThree)");
@@ -54,16 +54,20 @@ void Compiler::createThree(std::string op) {
         _assembly->li("$t1", left->getValue());
     }
 
+    if (right->getLexType() == LexType::Double || left->getLexType() == LexType::Double) {
+        resultType = LexType::Double;
+    }
 
 
     std::string unique = Variable::generateUniqueName();
-    Variable* result = new Variable(LexType::Text, unique);
+    Variable* result = new Variable(resultType, unique);
+    pushOnStack(result);
 
     _assembly->action(op, "$t0", "$t0", "$t1");
     _assembly->sw("$t0", result->getValue());
 
     createSymbol(unique, result);
-    _assembly->data(result->getValue(),);
+    _assembly->data(result->getValue(),result->getLexType());
 }
 
 void Compiler::createSymbol(std::string name, Variable* variable) {
@@ -78,33 +82,35 @@ void Compiler::createSymbol(std::string name, Variable* variable) {
 void Compiler::simpleAssigmentInt(std::string variableName) {
     Variable* top = topAndPop();
     LexType type = top->getLexType();
+    std::string value = top->getValue();
 
     if (type == LexType::Double) {
         Debug::info("Cant assigne double to int!");
+        return;
     }
 
-    if (type == LexType::Text) {
-        top->setLexType(LexType::Int);
-
+    if (isTextValue(value)) {
         if (!correctSymbol(top)) {
             Debug::info("symbol not exists! (simpleAssigmentInt)");
             return;
         }
     }
-
     createSymbol(variableName, top);
-    _assembly->createAssigment(variableName, top);
+
+    assigmentAssembly(variableName, top);
 }
 
 void Compiler::simpleAssigmentDouble(std::string variableName) {
     Variable* top = topAndPop();
     LexType type = top->getLexType();
+    std::string value = top->getValue();
 
     if (type == LexType::Int) {
         top->setLexType(LexType::Double); //convert int to double
+        return;
     }
 
-    if (type == LexType::Text) {
+    if (isTextValue(value)) {
         top->setLexType(LexType::Double);
 
         if (!correctSymbol(top)) {
@@ -114,7 +120,7 @@ void Compiler::simpleAssigmentDouble(std::string variableName) {
     }
 
     createSymbol(variableName, top);
-    _assembly->createAssigment(variableName, top);
+    assigmentAssembly(variableName, top);
 }
 
 void Compiler::simpleAssigmentText(std::string variableName) {
@@ -125,7 +131,7 @@ void Compiler::simpleAssigmentText(std::string variableName) {
         return;
     }
 
-    _assembly->createAssigment(variableName, top);
+    assigmentAssembly(variableName, top);
 }
 
 bool Compiler::correctSymbol(Variable* variable) {
@@ -167,4 +173,27 @@ Variable* Compiler::topAndPop(){
     _stack->pop();
 
     return top;
+}
+
+bool Compiler::isTextValue(std::string value) {
+  std::stringstream ss(value); 
+  int number;
+  float fnumber;
+
+  Debug::info("value: " + value);
+
+  if((ss >> number).fail() && (ss >> fnumber).fail())
+  { 
+      return true;
+  }
+
+  return false;
+}
+
+void Compiler::assigmentAssembly(std::string variableName, Variable* top) {
+    isTextValue(top->getValue()) ? _assembly->lw("$t0", top->getValue()) : _assembly->li("$t0", top->getValue());
+
+    _assembly->data(variableName, top->getLexType());    
+    _assembly->sw("$t0", variableName);
+    _assembly->generateOutputFile();
 }

@@ -44,26 +44,17 @@ void Assembly::li(std::string reg, std::string value) {
 void Assembly::action(std::string op, std::string assignReg, std::string reg0, std::string reg1) {
     std::stringstream ss;
 
-    ss << op << " " << assignReg << ", " << reg0 << " " << reg1 << "\n";
+    ss << op << " " << assignReg << ", " << reg0 << ", " << reg1 << "\n";
     pushText(ss.str());
 }
 
-void Assembly::data(std::string variableName, LexType lextype, std::string value = "0") {
+void Assembly::data(std::string variableName, LexType lextype, std::string value) {
     std::stringstream ss;
 
     std::string type = lextype == LexType::Double ? ".float" : ".word";
 
     ss << variableName << ":" << " " << type << " " << value << "\n";
-    pushText(ss.str());
-}
-
-void Assembly::createAssigment(std::string variableName, Variable* variable) {
-
-    data(variableName, variable->getLexType());
-    li("$t0", variable->getValue());
-    sw("$t0", variableName);
-
-    generateOutputFile();
+    pushData(ss.str());
 }
 
 void Assembly::generateOutputFile() {
@@ -76,6 +67,9 @@ void Assembly::generateOutputFile() {
     for ( auto i = _assemblyHeaderLines->begin(); i != _assemblyHeaderLines->end(); i++ ) {
         fprintf(asmFile, i->c_str());
     }
+
+    fprintf(asmFile, "\n"); //Separator
+
     for ( auto i = _assemblyBodyLines->begin(); i != _assemblyBodyLines->end(); i++ ) {
         fprintf(asmFile, i->c_str());
     }

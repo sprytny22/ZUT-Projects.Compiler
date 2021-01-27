@@ -15,12 +15,6 @@ void Debug::lexToString(std::string message, int lextype) {
         case LexType::Double:
             std::cout << message << std::string("LexType::Double") << std::endl;
             break;
-        case LexType::Text:
-            std::cout << message << std::string("LexType::Text") << std::endl;
-            break;
-        case LexType::None:
-            std::cout << message << std::string("LexType::None") << std::endl;
-            break;
         default:
             std::cout << message << std::string("Type debug Critical Error!") << std::endl;
             break;

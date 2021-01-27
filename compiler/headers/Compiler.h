@@ -18,6 +18,10 @@ class Compiler {
         Variable* findSymbol(std::string); 
         Variable* topAndPop();
 
+        bool isTextValue(std::string);
+
+        void assigmentAssembly(std::string, Variable*);
+
         bool correctSymbol(Variable*);
         void simpleAssigmentInt(std::string);
         void simpleAssigmentDouble(std::string);

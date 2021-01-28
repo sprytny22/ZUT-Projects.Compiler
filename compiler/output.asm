@@ -1,19 +1,33 @@
 .data
+a: .word 0
+b: .word 0
+c: .word 0
 x: .word 0
-result1: .word 0
-result2: .word 0
+y: .word 0
 z: .word 0
 
 .text
-li $t0, 3
+li $t0, 10
+sw $t0, a
+li $t0, 11
+sw $t0, b
+li $t0, 0
+sw $t0, c
+lw $t2, b
+lw $t3, a
+ble $t2, $t3, LABEL1
+li $t0, 0
 sw $t0, x
-li $t0, 2
-lw $t1, x
-mul $t0, $t0, $t1
-sw $t0, result1
-lw $t0, result1
-li $t1, 5
-add $t0, $t0, $t1
-sw $t0, result2
-lw $t0, result2
+LABEL1:
+lw $t2, c
+lw $t3, a
+bge $t2, $t3, LABEL2
+li $t0, 0
+sw $t0, y
+LABEL2:
+lw $t2, b
+lw $t3, a
+beq $t2, $t3, LABEL3
+li $t0, 0
 sw $t0, z
+LABEL3:

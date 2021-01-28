@@ -19,6 +19,7 @@ LexType Variable::getLexType() {
 }
 
 std::vector<std::string> Variable::unavailableNames;
+std::vector<std::string> Variable::unavailableLabels;
 
 std::string Variable::generateUniqueName() {
     int unique = 0;
@@ -29,4 +30,15 @@ std::string Variable::generateUniqueName() {
 
     unavailableNames.push_back(std::to_string(unique));
     return std::string(defaultVariableName) + std::to_string(unique);
+}
+
+std::string Variable::generateUniqueLabel() {
+    int unique = 0;
+    std::string defaultLabelName = "LABEL";
+    
+    while(std::find(unavailableLabels.begin(), unavailableLabels.end(), std::to_string(++unique)) != unavailableLabels.end()) 
+    {}
+
+    unavailableLabels.push_back(std::to_string(unique));
+    return std::string(defaultLabelName) + std::to_string(unique);
 }

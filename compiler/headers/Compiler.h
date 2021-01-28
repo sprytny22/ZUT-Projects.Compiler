@@ -6,6 +6,8 @@ class Compiler {
     
     private:
         std::stack<Variable*> *_stack;
+        std::stack<std::string> *_conditionStack;
+        std::stack<std::string> *_labelStack;
         std::map<std::string, Variable*> *_symbols;
         Assembly *_assembly;
 
@@ -26,5 +28,16 @@ class Compiler {
         void simpleAssigmentInt(std::string);
         void simpleAssigmentDouble(std::string);
         void simpleAssigmentText(std::string);
+
+        void pushConditionOnStack(std::string);
+
+        void ifStart();
+        void ifEnd();
+
+        std::string topAndPopCondition();
+
+        void PushLabelOnStack(std::string);
+
+        std::string topAndPopLabel();
 
 }; 

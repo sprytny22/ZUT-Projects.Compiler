@@ -43,6 +43,8 @@ boolean					{ return BOOLEAN; }
 \>\=					{ return GEQ;}
 \<\=					{ return LEQ;}
 \!\=					{ return NEQ;}
+\>						{ return LARGER;}
+\<						{ return SMALLER;}
 
 [A-Za-z_][A-Za-z0-9_]*	{ 
 							yylval.textValue = strdup(yytext);

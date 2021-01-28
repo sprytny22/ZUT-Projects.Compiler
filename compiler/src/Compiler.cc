@@ -6,6 +6,8 @@
 
 Compiler::Compiler() {
     _stack = new std::stack<Variable*>();
+    _conditionStack = new std::stack<std::string>();
+    _labelStack = new std::stack<std::string>();
     _symbols = new std::map<std::string, Variable*>();
     _assembly = new Assembly();
 }
@@ -58,15 +60,14 @@ void Compiler::createThree(std::string op) {
         resultType = LexType::Double;
     }
 
-
     std::string unique = Variable::generateUniqueName();
     Variable* result = new Variable(resultType, unique);
+
     pushOnStack(result);
+    createSymbol(unique, result);
 
     _assembly->action(op, "$t0", "$t0", "$t1");
     _assembly->sw("$t0", result->getValue());
-
-    createSymbol(unique, result);
     _assembly->data(result->getValue(),result->getLexType());
 }
 
@@ -196,4 +197,47 @@ void Compiler::assigmentAssembly(std::string variableName, Variable* top) {
     _assembly->data(variableName, top->getLexType());    
     _assembly->sw("$t0", variableName);
     _assembly->generateOutputFile();
+}
+
+void Compiler::pushConditionOnStack(std::string condition) {
+    _conditionStack->push(condition);
+}
+
+std::string Compiler::topAndPopCondition() {
+    std::string top = _conditionStack->top();
+    _conditionStack->pop();
+
+    return top;
+}
+
+void Compiler::ifStart() {
+    Variable* right = topAndPop();
+    Variable* left = topAndPop();
+
+    std::string condition = topAndPopCondition();
+
+    std::string label = Variable::generateUniqueLabel();
+    PushLabelOnStack(label);
+
+    _assembly->lw("$t2", right->getValue());
+    _assembly->lw("$t3", left->getValue());
+    _assembly->condition(condition, "$t2", "$t3", label);
+}
+
+void Compiler::ifEnd() {
+    std::string label = topAndPopLabel();
+
+    _assembly->label(label);
+    _assembly->generateOutputFile();
+}
+
+void Compiler::PushLabelOnStack(std::string label) {
+    _labelStack->push(label);
+}
+
+std::string Compiler::topAndPopLabel() {
+    std::string top = _labelStack->top();
+    _labelStack->pop();
+
+    return top;
 }

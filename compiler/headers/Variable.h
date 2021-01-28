@@ -19,5 +19,7 @@ class Variable {
       LexType getLexType();
 
       static std::vector<std::string> unavailableNames;
+      static std::vector<std::string> unavailableLabels;
       static std::string generateUniqueName();
+      static std::string generateUniqueLabel();
 }; 

@@ -17,6 +17,8 @@ class Assembly {
 
         void data(std::string, LexType, std::string = "0");
         void action(std::string, std::string, std::string, std::string);
+        void condition(std::string, std::string, std::string, std::string);
+        void label(std::string);
         
         void generateOutputFile();
 

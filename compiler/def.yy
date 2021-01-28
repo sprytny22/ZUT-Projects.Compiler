@@ -76,32 +76,56 @@ expressionInBrackets:
 if_start:
   IF '(' expression compOperator expression ')'  {
     printf("Syntax-Recognized: poczatek instrukcji warunkowej \n");  
+    compiler->ifStart();
   }
 ;
 
 if_expression:
     if_start '{' lines '}' {
       printf("Syntax-Recognized: wnetrze instrukcji warunkowej \n"); 
+      compiler->ifEnd();
     }
   | if_start '{'  '}' { 
-      printf("Syntax-Recognized: pustrze wnetrze instrukcji warunkowej \n");  
+      printf("Syntax-Recognized: pustrze wnetrze instrukcji warunkowej \n");
+      compiler->ifEnd();  
     }
 ;
 
 compOperator: 
     EQ {
       printf("Syntax-Recognized: operator rowna sie \n");  
+      compiler->pushConditionOnStack("beq");
     }
 	| NEQ {
       printf("Syntax-Recognized: operator rozna sie \n"); 
+      compiler->pushConditionOnStack("bne");
     }
 	| GEQ { 
       printf("Syntax-Recognized: operator wiekszy rowny \n"); 
+      compiler->pushConditionOnStack("bge");
     }
 	| LEQ {
       printf("Syntax-Recognized: operator mniejszy rowny \n"); 
+      compiler->pushConditionOnStack("ble");
+    }
+  | LARGER {
+      printf("Syntax-Recognized: operator mniejszy rowny \n"); 
+      compiler->pushConditionOnStack("bgt");
+    }
+  | SMALLER {
+      printf("Syntax-Recognized: operator mniejszy rowny \n"); 
+      compiler->pushConditionOnStack("blt");
     }
 ;
+
+func:
+    PRINT expression { 
+      printf("Syntax-Recognized: wyswietlenie wyrazenia w nawiasie \n");
+    }
+  | READ TEXT {
+      printf("Syntax-Recognized: wczytywanie \n"); 
+    }
+  ;
 
 assignment:
     typeName elementCmp '=' elementCmp ';' { 
@@ -208,9 +232,8 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
-  
- 
              
+
 /*
 TODO:
   - Obsluga bledow!

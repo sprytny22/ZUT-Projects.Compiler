@@ -48,6 +48,20 @@ void Assembly::action(std::string op, std::string assignReg, std::string reg0, s
     pushText(ss.str());
 }
 
+void Assembly::condition(std::string op, std::string reg0, std::string reg1, std::string label) {
+    std::stringstream ss;
+
+    ss << op << " " << reg0 << ", " << reg1 << ", " << label << "\n";
+    pushText(ss.str());
+}
+
+void Assembly::label(std::string label) {
+    std::stringstream ss;
+
+    ss << label << ":" << "\n";
+    pushText(ss.str());
+}
+
 void Assembly::data(std::string variableName, LexType lextype, std::string value) {
     std::stringstream ss;
 

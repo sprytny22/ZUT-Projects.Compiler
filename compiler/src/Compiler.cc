@@ -64,6 +64,7 @@ void Compiler::createThree(std::string op) {
     Variable* result = new Variable(resultType, unique);
 
     pushOnStack(result);
+    Debug::info("info:" + result->getValue());
     createSymbol(unique, result);
 
     _assembly->action(op, "$t0", "$t0", "$t1");
@@ -96,6 +97,7 @@ void Compiler::simpleAssigmentInt(std::string variableName) {
             return;
         }
     }
+
     createSymbol(variableName, top);
 
     assigmentAssembly(variableName, top);
@@ -106,10 +108,11 @@ void Compiler::simpleAssigmentDouble(std::string variableName) {
     LexType type = top->getLexType();
     std::string value = top->getValue();
 
-    if (type == LexType::Int) {
-        top->setLexType(LexType::Double); //convert int to double
-        return;
-    }
+    // if (type == LexType::Int) {
+    //     top->setLexType(LexType::Double); //convert int to double
+    //     Debug::info("CONVERT ERROR");
+    //     return;
+    // }
 
     if (isTextValue(value)) {
         top->setLexType(LexType::Double);
@@ -120,6 +123,7 @@ void Compiler::simpleAssigmentDouble(std::string variableName) {
         }
     }
 
+    Debug::info("variableName:" + variableName);
     createSymbol(variableName, top);
     assigmentAssembly(variableName, top);
 }
@@ -145,11 +149,11 @@ bool Compiler::correctSymbol(Variable* variable) {
         return false;
     }
 
-    type = symbol->getLexType();// TODO: type int -> double, double -> int is CORRECT!
-    if (type != variable->getLexType()) {
-        Debug::info("symbol not match!");
-        return false;
-    }
+    // type = symbol->getLexType();// TODO: type int -> double, double -> int is CORRECT!
+    // if (type != variable->getLexType()) {
+    //     Debug::info("symbol not match!");
+    //     return false;
+    // }
 
     return true;
 } 
@@ -183,8 +187,7 @@ bool Compiler::isTextValue(std::string value) {
 
   Debug::info("value: " + value);
 
-  if((ss >> number).fail() && (ss >> fnumber).fail())
-  { 
+  if((ss >> number).fail() && (ss >> fnumber).fail()) { 
       return true;
   }
 
@@ -240,4 +243,63 @@ std::string Compiler::topAndPopLabel() {
     _labelStack->pop();
 
     return top;
+}
+
+void Compiler::print() {
+    Variable* top = topAndPop();
+    std::string value = top->getValue();
+
+    if (!correctSymbol(top)) {
+        Debug::info("print error");
+        return;
+    }
+
+    LexType type = findSymbolType(top->getValue());
+
+    if (type == LexType::Int) {
+        _assembly->li("$v0", "1");
+        _assembly->lw("$a0", value);
+    }
+    else {
+        _assembly->li("$v0", "2");
+        _assembly->ldots("$t12", value);
+    }
+
+    _assembly->syscall();
+    _assembly->generateOutputFile();
+}
+
+void Compiler::printext(std::string text) {
+    std::string unique = Variable::generateUniqueName();
+
+    _assembly->data(unique, text);
+    _assembly->li("$v0", "4");
+    _assembly->la("$a0", unique);
+    _assembly->syscall();
+
+    _assembly->generateOutputFile();
+}
+
+void Compiler::read() {
+    Variable* top = topAndPop();
+    LexType type = top->getLexType();
+    std::string value = top->getValue();
+
+    if (!correctSymbol(top)) {
+        Debug::info("read error");
+        return;
+    }
+
+    if (type == LexType::Int) {
+        _assembly->li("$v0", "5");
+        _assembly->syscall();
+        _assembly->sw("$v0", value);
+    }
+    else {
+        _assembly->li("$v0", "6");
+        _assembly->syscall();
+        _assembly->sdots("$f0", value);
+    }
+
+    _assembly->generateOutputFile();
 }

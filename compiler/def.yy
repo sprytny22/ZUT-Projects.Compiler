@@ -39,7 +39,7 @@
 
 %token INT DOUBLE STRING BOOLEAN;
 %token IF ELSE WHILE RETURN;
-%token READ PRINT;
+%token READ PRINT PRINTEXT;
 %token TRUE FALSE COMMENT;
 %token EQ NEQ GEQ LEQ LARGER SMALLER;
 
@@ -64,6 +64,7 @@ line:
   | assignment { 
       printf("Syntax-Recognized: linia przypisania\n");
     }
+  | func ';'
   | if_expression ';'
 ;
 
@@ -121,11 +122,17 @@ compOperator:
 func:
     PRINT expression { 
       printf("Syntax-Recognized: wyswietlenie wyrazenia w nawiasie \n");
+      compiler->print();
     }
-  | READ TEXT {
+  | PRINTEXT TEXT { 
+      printf("Syntax-Recognized: wyswietlenie wyrazenia w nawiasie \n");
+      compiler->printext(std::string($2));
+    }
+  | READ expression {
       printf("Syntax-Recognized: wczytywanie \n"); 
+      compiler->read();   
     }
-  ;
+;
 
 assignment:
     typeName elementCmp '=' elementCmp ';' { 
@@ -234,10 +241,10 @@ int main(int argc, char *argv[])
 }
              
 
-/*
+/* 
 TODO:
   - Obsluga bledow!
-  - Zwolnienie pamięci!
-  - Testy! 
+  - Zwolnienie pamięci!   
+  - Testy!   
   - Formatowanie kodu!
-*/     
+*/      

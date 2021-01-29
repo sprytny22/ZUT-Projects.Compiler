@@ -41,6 +41,27 @@ void Assembly::li(std::string reg, std::string value) {
     pushText(ss.str());
 }
 
+void Assembly::la(std::string reg, std::string value) {
+    std::stringstream ss;
+
+    ss << "la " << reg << ", " << value << "\n";
+    pushText(ss.str());
+}
+
+void Assembly::ldots(std::string reg, std::string value) {
+    std::stringstream ss;
+
+    ss << "l.s " << reg << ", " << value << "\n";
+    pushText(ss.str());
+}
+
+void Assembly::sdots(std::string reg, std::string value) {
+    std::stringstream ss;
+
+    ss << "s.s " << reg << ", " << value << "\n";
+    pushText(ss.str());
+}
+
 void Assembly::action(std::string op, std::string assignReg, std::string reg0, std::string reg1) {
     std::stringstream ss;
 
@@ -62,6 +83,14 @@ void Assembly::label(std::string label) {
     pushText(ss.str());
 }
 
+void Assembly::syscall() {
+    std::stringstream ss;
+    std::string syscall = "syscall";
+
+    ss << syscall << "\n";
+    pushText(ss.str());
+}
+
 void Assembly::data(std::string variableName, LexType lextype, std::string value) {
     std::stringstream ss;
 
@@ -71,10 +100,21 @@ void Assembly::data(std::string variableName, LexType lextype, std::string value
     pushData(ss.str());
 }
 
+void Assembly::data(std::string name, std::string value) {
+    std::stringstream ss;
+    std::string ascii = ".asciiz";
+
+    ss << name << ":" << " " << ascii << " " << "\"" << value << "\"" << "\n";
+
+    pushData(ss.str());
+}
+
 void Assembly::generateOutputFile() {
 
     FILE * asmFile;
     remove("output.asm");
+
+    _assemblyBodyLines->push_back("\n");  //SNEAKY SEPARATOR
 
     asmFile = fopen ("output.asm","a");
 

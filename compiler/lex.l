@@ -26,6 +26,7 @@ boolean					{ return BOOLEAN; }
 "else"					{ return ELSE;    }
 "while"					{ return WHILE;   }  
 "print"					{ return PRINT;   }
+"printext"				{ return PRINTEXT;}
 "read"					{ return READ;    }  
 "return"				{ return RETURN;  }  
 "true"					{ return TRUE;    } 

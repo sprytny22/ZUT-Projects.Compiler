@@ -40,4 +40,9 @@ class Compiler {
 
         std::string topAndPopLabel();
 
+        void print();
+        void printext(std::string);
+
+        void read();
+
 }; 

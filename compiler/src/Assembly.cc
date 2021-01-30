@@ -69,6 +69,13 @@ void Assembly::action(std::string op, std::string assignReg, std::string reg0, s
     pushText(ss.str());
 }
 
+void Assembly::actiondots(std::string op, std::string assignReg, std::string reg0, std::string reg1) {
+    std::stringstream ss;
+
+    ss << op << ".s"  << " " << assignReg << ", " << reg0 << ", " << reg1 << "\n";
+    pushText(ss.str());
+}
+
 void Assembly::condition(std::string op, std::string reg0, std::string reg1, std::string label) {
     std::stringstream ss;
 
@@ -79,7 +86,7 @@ void Assembly::condition(std::string op, std::string reg0, std::string reg1, std
 void Assembly::label(std::string label) {
     std::stringstream ss;
 
-    ss << label << ":" << "\n";
+    ss << label << ": " << "\n";
     pushText(ss.str());
 }
 

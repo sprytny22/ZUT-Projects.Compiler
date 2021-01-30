@@ -15,7 +15,6 @@ void sendOutput(char *);
 integer					{ return INT; } 
 double					{ return DOUBLE; }
 string					{ return STRING; }
-boolean					{ return BOOLEAN; }
 \+						{ return '+'; }
 \-						{ return '-'; }
 \=						{ return '='; }
@@ -23,15 +22,9 @@ boolean					{ return BOOLEAN; }
 \*						{ return '*'; }
 "end"					{ return ';'; }
 "if"					{ return IF;      } 
-"else"					{ return ELSE;    }
-"while"					{ return WHILE;   }  
 "print"					{ return PRINT;   }
 "printext"				{ return PRINTEXT;}
-"read"					{ return READ;    }  
-"return"				{ return RETURN;  }  
-"true"					{ return TRUE;    } 
-"false"					{ return FALSE;   }  
-\/\/					{ return COMMENT; }
+"read"					{ return READ;    }   
 \(						{ return '(';     }
 \)						{ return ')';     }
 \[						{ return '[';     }
@@ -39,7 +32,6 @@ boolean					{ return BOOLEAN; }
 \}						{ return '}';     }
 \"						{ return '"';     }
 \]						{ return ']';     }
-\/\/					{ return COMMENT;}
 \=\=					{ return EQ;}
 \>\=					{ return GEQ;}
 \<\=					{ return LEQ;}

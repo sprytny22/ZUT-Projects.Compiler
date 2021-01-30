@@ -16,6 +16,19 @@ void Compiler::pushOnStack(Variable* variable) {
     _stack->push(variable);
 }
 
+void Compiler::pushOnStackText(Variable* variable) {
+    auto var = findSymbol(variable->getValue());
+
+    if (var == nullptr) {
+        Debug::info("ERROR PUSH");
+        return;
+    }
+
+    variable->setLexType(var->getLexType());
+
+    _stack->push(variable);
+}
+
 void Compiler::createThree(std::string op) {
 
     if (_stack->size() < 1) {
@@ -49,7 +62,6 @@ void Compiler::createThree(std::string op) {
             Debug::info("Symbol not exists left! (createThree)");
             return;
         }
-
         _assembly->lw("$t1", left->getValue());
     }
     else {
@@ -64,8 +76,14 @@ void Compiler::createThree(std::string op) {
     Variable* result = new Variable(resultType, unique);
 
     pushOnStack(result);
-    Debug::info("info:" + result->getValue());
     createSymbol(unique, result);
+
+    if (result->getLexType() == LexType::Double){
+        _assembly->actiondots(op, "$f0", "$f0", "$f1");
+        _assembly->sdots("$t0", result->getValue());
+        _assembly->data(result->getValue(),result->getLexType());
+        return;
+    }
 
     _assembly->action(op, "$t0", "$t0", "$t1");
     _assembly->sw("$t0", result->getValue());
@@ -99,7 +117,6 @@ void Compiler::simpleAssigmentInt(std::string variableName) {
     }
 
     createSymbol(variableName, top);
-
     assigmentAssembly(variableName, top);
 }
 
@@ -107,12 +124,6 @@ void Compiler::simpleAssigmentDouble(std::string variableName) {
     Variable* top = topAndPop();
     LexType type = top->getLexType();
     std::string value = top->getValue();
-
-    // if (type == LexType::Int) {
-    //     top->setLexType(LexType::Double); //convert int to double
-    //     Debug::info("CONVERT ERROR");
-    //     return;
-    // }
 
     if (isTextValue(value)) {
         top->setLexType(LexType::Double);
@@ -123,7 +134,8 @@ void Compiler::simpleAssigmentDouble(std::string variableName) {
         }
     }
 
-    Debug::info("variableName:" + variableName);
+    top->setLexType(LexType::Double);
+
     createSymbol(variableName, top);
     assigmentAssembly(variableName, top);
 }
@@ -185,8 +197,6 @@ bool Compiler::isTextValue(std::string value) {
   int number;
   float fnumber;
 
-  Debug::info("value: " + value);
-
   if((ss >> number).fail() && (ss >> fnumber).fail()) { 
       return true;
   }
@@ -195,8 +205,25 @@ bool Compiler::isTextValue(std::string value) {
 }
 
 void Compiler::assigmentAssembly(std::string variableName, Variable* top) {
+
+    if (top->getLexType() == LexType::Double) {
+        std::string unique = Variable::generateUniqueName();
+        !isTextValue(top->getValue()) ? _assembly->data(unique, top->getLexType(), top->getValue()) : _assembly->data(unique, top->getLexType());
+        _assembly->data(variableName, top->getLexType());
+        
+        _assembly->ldots("$f0", unique);
+        _assembly->sdots("$f0", variableName);
+        _assembly->generateOutputFile();
+        return;
+    }
+
     isTextValue(top->getValue()) ? _assembly->lw("$t0", top->getValue()) : _assembly->li("$t0", top->getValue());
 
+    // // if (!findSymbol(top->getValue())){
+    //      _assembly->data(variableName, top->getLexType());    
+     
+    //      _assembly->data(variableName, top->getLexType());    
+    // // }
     _assembly->data(variableName, top->getLexType());    
     _assembly->sw("$t0", variableName);
     _assembly->generateOutputFile();
@@ -216,14 +243,38 @@ std::string Compiler::topAndPopCondition() {
 void Compiler::ifStart() {
     Variable* right = topAndPop();
     Variable* left = topAndPop();
+    std::string rightValue = right->getValue();
+    std::string leftValue = left->getValue();
 
     std::string condition = topAndPopCondition();
 
     std::string label = Variable::generateUniqueLabel();
     PushLabelOnStack(label);
 
-    _assembly->lw("$t2", right->getValue());
-    _assembly->lw("$t3", left->getValue());
+    if (isTextValue(rightValue)) {
+        auto symbol = findSymbol(right->getValue());
+        if (symbol == nullptr) {
+            Debug::info("Symbol not exists right! (createThree)");
+            return;
+        }
+        _assembly->lw("$t2", left->getValue());
+    }
+    else {
+        _assembly->li("$t2", left->getValue());
+    }
+    
+    if (isTextValue(rightValue)) {
+        auto symbol = findSymbol(right->getValue());
+        if (symbol == nullptr) {
+            Debug::info("Symbol not exists right! (createThree)");
+            return;
+        }
+        _assembly->lw("$t3", left->getValue());
+    }
+    else {
+        _assembly->li("$t3", left->getValue());
+    }
+
     _assembly->condition(condition, "$t2", "$t3", label);
 }
 
@@ -262,7 +313,7 @@ void Compiler::print() {
     }
     else {
         _assembly->li("$v0", "2");
-        _assembly->ldots("$t12", value);
+        _assembly->ldots("$f12", value);
     }
 
     _assembly->syscall();
@@ -302,4 +353,28 @@ void Compiler::read() {
     }
 
     _assembly->generateOutputFile();
+}
+
+void Compiler::declareInt(std::string value) {
+    Variable* var = new Variable(LexType::Int, value);
+
+    if(findSymbol(value)) {
+        Debug::info("ERROR: Taki symbol juz instenieje");
+        return;
+    }
+
+    createSymbol(value, var);
+    _assembly->data(value, var->getLexType());
+}
+
+void Compiler::declareDouble(std::string value) {
+    Variable* var = new Variable(LexType::Double, value);
+
+    if(findSymbol(value)) {
+        Debug::info("ERROR: Taki symbol juz instenieje");
+        return;
+    }
+
+    createSymbol(value, var);
+    _assembly->data(value, var->getLexType());
 }

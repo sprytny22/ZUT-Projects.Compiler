@@ -37,11 +37,15 @@ class Compiler {
         std::string topAndPopCondition();
 
         void PushLabelOnStack(std::string);
+        void pushOnStackText(Variable*);
 
         std::string topAndPopLabel();
 
         void print();
         void printext(std::string);
+
+        void declareInt(std::string);
+        void declareDouble(std::string);
 
         void read();
 

@@ -20,7 +20,6 @@
     std::string Div = "div";
   }
   
-
   Compiler *compiler = new Compiler();
 
 %}
@@ -37,10 +36,9 @@
 %left '+' '-'
 %left '*'
 
-%token INT DOUBLE STRING BOOLEAN;
-%token IF ELSE WHILE RETURN;
+%token INT DOUBLE STRING;
+%token IF
 %token READ PRINT PRINTEXT;
-%token TRUE FALSE COMMENT;
 %token EQ NEQ GEQ LEQ LARGER SMALLER;
 
 %token<textValue> TEXT;
@@ -53,16 +51,16 @@
 lines:
     line
   | lines line { 
-      printf("Syntax-Recognized: wiele linii\n"); 
+      printf("wiele linii\n"); 
     }
 ;
 
 line:
     declaration { 
-      printf("Syntax-Recognized: linia deklaracji\n");
+      printf("linia deklaracji\n");
     }
   | assignment { 
-      printf("Syntax-Recognized: linia przypisania\n");
+      printf("linia przypisania\n");
     }
   | func ';'
   | if_expression ';'
@@ -70,128 +68,121 @@ line:
 
 expressionInBrackets:
   '(' expression ')' {
-    printf("Syntax-Recognized: wyrazenie w nawiasie \n");
+    printf("wyrazenie w nawiasie \n");
   }
 ;
 
 if_start:
   IF '(' expression compOperator expression ')'  {
-    printf("Syntax-Recognized: poczatek instrukcji warunkowej \n");  
+    printf("poczatek instrukcji warunkowej \n");  
     compiler->ifStart();
   }
 ;
 
 if_expression:
     if_start '{' lines '}' {
-      printf("Syntax-Recognized: wnetrze instrukcji warunkowej \n"); 
+      printf("wnetrze instrukcji warunkowej \n"); 
       compiler->ifEnd();
     }
   | if_start '{'  '}' { 
-      printf("Syntax-Recognized: pustrze wnetrze instrukcji warunkowej \n");
+      printf("pustrze wnetrze instrukcji warunkowej \n");
       compiler->ifEnd();  
     }
 ;
 
 compOperator: 
     EQ {
-      printf("Syntax-Recognized: operator rowna sie \n");  
+      printf("operator rowna sie \n");  
       compiler->pushConditionOnStack("beq");
     }
 	| NEQ {
-      printf("Syntax-Recognized: operator rozna sie \n"); 
+      printf("operator rozna sie \n"); 
       compiler->pushConditionOnStack("bne");
     }
 	| GEQ { 
-      printf("Syntax-Recognized: operator wiekszy rowny \n"); 
+      printf("operator wiekszy rowny \n"); 
       compiler->pushConditionOnStack("bge");
     }
 	| LEQ {
-      printf("Syntax-Recognized: operator mniejszy rowny \n"); 
+      printf("operator mniejszy rowny \n"); 
       compiler->pushConditionOnStack("ble");
     }
   | LARGER {
-      printf("Syntax-Recognized: operator mniejszy rowny \n"); 
+      printf("operator mniejszy rowny \n"); 
       compiler->pushConditionOnStack("bgt");
     }
   | SMALLER {
-      printf("Syntax-Recognized: operator mniejszy rowny \n"); 
+      printf("operator mniejszy rowny \n"); 
       compiler->pushConditionOnStack("blt");
     }
 ;
 
 func:
     PRINT expression { 
-      printf("Syntax-Recognized: wyswietlenie wyrazenia w nawiasie \n");
+      printf("wyswietlenie wyrazenia w nawiasie \n");
       compiler->print();
     }
   | PRINTEXT TEXT { 
-      printf("Syntax-Recognized: wyswietlenie wyrazenia w nawiasie \n");
+      printf("wyswietlenie wyrazenia w nawiasie \n");
       compiler->printext(std::string($2));
     }
   | READ expression {
-      printf("Syntax-Recognized: wczytywanie \n"); 
+      printf("wczytywanie \n"); 
       compiler->read();   
     }
 ;
 
 assignment:
     typeName elementCmp '=' elementCmp ';' { 
-      printf("Syntax-Recognized: przypisanie proste.\n");  
+      printf("przypisanie proste.\n");  
     }
   | typeName elementCmp '=' expression ';' { 
-      printf("Syntax-Recognized: przypisanie zlozone.\n");  
+      printf("przypisanie zlozone.\n");  
     }
   | TEXT '=' expression ';' { 
-      printf("Syntax-Recognized: przypisanie identyfikatora \n");  
+      printf("przypisanie identyfikatora \n");  
       compiler->simpleAssigmentText($1);
     }
   | INT TEXT '=' expression ';' { 
-      printf("Syntax-Recognized: przypisanie identyfikatora dla inta \n");
+      printf("przypisanie identyfikatora dla inta \n");
       compiler->simpleAssigmentInt($2);
     }
   | DOUBLE TEXT '=' expression ';' { 
-      printf(" Syntax-Recognized: przypisanie identyfikatora dla double \n");
+      printf("przypisanie identyfikatora dla double \n");
       compiler->simpleAssigmentDouble($2);
     }
 ;
 
 declaration:
     INT TEXT ';' { 
-      printf("Syntax-Recognized: deklaracja inta\n");
+      printf("deklaracja inta\n");
+      compiler->declareInt(std::string($2));
     }
   | DOUBLE TEXT ';' { 
-      printf("Syntax-Recognized: deklaracja double\n");
+      printf("deklaracja double\n");
+      compiler->declareDouble(std::string($2));
     }
-  | STRING TEXT ';' { 
-      printf("Syntax-Recognized: deklaracja stringa\n");
-    }
-  | BOOLEAN TEXT ';' { 
-      printf("Syntax-Recognized: deklaracja boola \n");
-    }
-;
-
+; 
+ 
 typeName:
     INT {  
-      printf("Syntax-Recognized: typ int\n"); 
+      printf("typ int\n"); 
     }
   | DOUBLE {  
-      printf("Syntax-Recognized: typ double\n"); 
+      printf("typ double\n"); 
     }
   | STRING { 
-      printf("Syntax-Recognized: typ string\n"); 
-    }
-  | BOOLEAN {  
-      printf("Syntax-Recognized: typ bool\n"); 
+      printf("typ string\n"); 
     }
 ;
 
 expression:
     components '+' expression {  
-      printf("Syntax-Recognized: dodawanie\n");
+      printf("dodawanie\n");
       compiler->createThree(Operators::Add);
     }
 	| components '-' expression { 
-      printf("Syntax-Recognized: odejmowanie\n");
+      printf("odejmowanie\n");
       compiler->createThree(Operators::Sub);  
     }
 	| components
@@ -199,11 +190,11 @@ expression:
 
 components:
 	  components '*' elementCmp {  
-      printf("Syntax-Recognized: mnozenie\n"); 
+      printf("mnozenie\n"); 
       compiler->createThree(Operators::Mul);  
     }
 	| components '/' elementCmp { 
-      printf("Syntax-Recognized: dzielenie\n"); 
+      printf("dzielenie\n"); 
       compiler->createThree(Operators::Div); 
     }
 	| elementCmp { 
@@ -213,19 +204,19 @@ components:
 
 elementCmp:
 	  VALUE_INTEGER	{  
-      printf("Syntax-Recognized: wartosc calkowita\n");
+      printf("wartosc calkowita\n");
       compiler->pushOnStack(new Variable(LexType::Int, std::to_string($1))); 
     }
 	| VALUE_DECIMAL	{  
-      //printf("Syntax-Recognized: wartosc zmiennoprzecinkowa\n");
+      printf("wartosc zmiennoprzecinkowa\n");
       compiler->pushOnStack(new Variable(LexType::Double, std::to_string($1)));   
   }
   | TEXT {  
-      //printf("Syntax-Recognized: text-zmn\n");
-      compiler->pushOnStack(new Variable(LexType::Int, std::string($1)));               
+      printf("text-zmn\n");     
+      compiler->pushOnStackText(new Variable(LexType::Int, std::string($1)));               
   }
-;
-
+;    
+           
 %%
 
 int main(int argc, char *argv[])
@@ -239,12 +230,3 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
-             
-
-/* 
-TODO:
-  - Obsluga bledow!
-  - Zwolnienie pamięci!   
-  - Testy!   
-  - Formatowanie kodu!
-*/      
